@@ -1,7 +1,7 @@
 name: Release
 on: [push]
   # schedule:
-  #  - cron:  '0 12 * * 1-4' # TODO every day 12:00 UTC Monday-Thursday
+  #  - cron:  '0 12 * * 1-4' # every day 12:00 UTC Monday-Thursday TODO
 
   # manual trigger TODO
   # workflow_dispatch:
@@ -19,11 +19,11 @@ jobs:
 
       - name: Bump version and push tag
         id: github_tag_action
-        uses: mathieudutour/github-tag-action@v5.6 # TODO
+        uses: mathieudutour/github-tag-action@v5.6
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           release_branches: .*
-          # default_bump: false
+          # default_bump: false TODO
 
   create_release:
     name: Create Release
