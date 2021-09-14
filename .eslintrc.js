@@ -21,7 +21,7 @@ module.exports = {
     'linebreak-style': [0],
     'import/no-unresolved': [0],
     'no-unused-vars': [
-      1,
+      0, // TODO
       {
         argsIgnorePattern: 'res|next|^err|_'
       }
