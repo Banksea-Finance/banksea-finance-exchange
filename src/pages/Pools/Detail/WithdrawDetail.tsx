@@ -208,7 +208,7 @@ const BackIcon:React.FC = () => {
 }
 
 
-const Schedule:React.FC<{ data: any }> = ({ data }) => {
+const Schedule:React.FC<{ data: any }> = () => {
   // const account = useSelector(getAccount)
 
   // const [formData, setFormData] = useState<any>()
@@ -259,7 +259,7 @@ const WithdrawDetailPage:React.FC = () => {
 
   // const id = history.location.pathname.slice(22)
 
-  const [data, setData] = useState<any>()
+  const [data] = useState<any>() // [data, setData]
 
   return (
     <ItemDetailMain>
