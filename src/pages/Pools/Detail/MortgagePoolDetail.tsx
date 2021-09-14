@@ -3,8 +3,8 @@ import styled from 'styled-components'
 import { useHistory } from 'react-router-dom'
 import { LeftOutlined } from '@ant-design/icons'
 import VariableAPY from '../../../components/EchartsStatistics/VariableAPY'
-import DepositAPY from '../../../components/EchartsStatistics/DepositAPY'
-import UtilisationRate from '../../../components/EchartsStatistics/UtilisationRate'
+// import DepositAPY from '../../../components/EchartsStatistics/DepositAPY'
+// import UtilisationRate from '../../../components/EchartsStatistics/UtilisationRate'
 import myDashboard1 from '../../../assets/images/mockImg/myDashboard1.png'
 
 
