@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import './app.scss'
 import { Layout } from 'antd'
 import AppHeader from './layout/AppHeader'

@@ -1,10 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 import DepositAPY from '../../../components/EchartsStatistics/DepositAPY'
 import { useHistory } from 'react-router-dom'
 import { Button, Form, Input } from 'antd'
-import { useSelector } from 'react-redux'
-import { getAccount } from '../../../store/wallet'
+// import { useSelector } from 'react-redux'
+// import { getAccount } from '../../../store/wallet'
 import { useWithdrawCheckoutModal } from '../../../hooks/modals/useWithdrawCheckoutModal'
 import { LeftOutlined } from '@ant-design/icons'
 
@@ -209,15 +209,15 @@ const BackIcon:React.FC = () => {
 
 
 const Schedule:React.FC<{ data: any }> = ({ data }) => {
-  const account = useSelector(getAccount)
+  // const account = useSelector(getAccount)
 
-  const [formData, setFormData] = useState<any>()
+  // const [formData, setFormData] = useState<any>()
 
   const formInitialValues = {
     price: ''
   }
 
-  const { withdrawCheckoutModal, openWithdrawCheckoutModal, closeWithdrawCheckoutModal } = useWithdrawCheckoutModal()
+  const { withdrawCheckoutModal, openWithdrawCheckoutModal } = useWithdrawCheckoutModal()
 
   const [form] = Form.useForm<typeof formInitialValues>()
 
@@ -255,9 +255,9 @@ const Schedule:React.FC<{ data: any }> = ({ data }) => {
 
 const WithdrawDetailPage:React.FC = () => {
 
-  const history = useHistory()
+  // const history = useHistory()
 
-  const id = history.location.pathname.slice(22)
+  // const id = history.location.pathname.slice(22)
 
   const [data, setData] = useState<any>()
 

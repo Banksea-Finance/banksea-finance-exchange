@@ -250,11 +250,11 @@ const Schedule:React.FC = () => {
 
 const RepayDetailPage:React.FC = () => {
 
-  const history = useHistory()
+  // const history = useHistory()
 
-  const id = history.location.pathname.slice(22)
+  // const id = history.location.pathname.slice(22)
 
-  const [data, setData] = useState<any>()
+  const [data] = useState<any>() // [data, setData]
 
   return (
     <ItemDetailMain>
