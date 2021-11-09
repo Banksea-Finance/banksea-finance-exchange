@@ -11,35 +11,34 @@ import { NftListItem } from '@/types/NFTDetail'
 
 const NFTItemCardContainer = styled.div<{$empty?: boolean}>`
   color: #7c6deb;
-  width: 26rem;
+  width: 25.2rem;
   height: ${props => props.$empty ? '0' : '37rem'};
   background-color: #111C3A;
   border-radius: 1rem;
-  margin-bottom: ${props => props.$empty ? '0' : '3rem'};;
+  margin-bottom: ${props => props.$empty ? '0' : '3rem'};
   font-weight: bold;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 
   .img-container {
-    width: 26.2rem;
-    height: 28.5rem;
+    height: ${props => props.$empty ? '0' : '28.5rem'};
     display: flex;
     justify-content: center;
     overflow: hidden;
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
-  }
 
-  img {
-    object-fit: cover;
-    width: 25.9rem;
-    margin-bottom: 1.5rem;
-    transition: all 1s;
-    z-index: 0;
+    img {
+      object-fit: cover;
+      width: 25.9rem;
+      margin-bottom: 1.5rem;
+      transition: all 1s;
+      z-index: 0;
 
-    :hover {
-      transform: scale(1.1);
+      :hover {
+        transform: scale(1.1);
+      }
     }
   }
 
@@ -87,11 +86,11 @@ const NFTItemCardContainer = styled.div<{$empty?: boolean}>`
     align-items: center;
     align-self: center;
     color: white;
-  }
+    margin-bottom: 10px;
 
-  .price-value {
-    margin-bottom: 1.2rem;
-    margin-left: 0.7rem;
+    .price-value {
+      margin-left: 0.7rem;
+    }
   }
 
   .button {
@@ -129,7 +128,7 @@ const TypeChainThumbnailMapper: { [key in ChainType]?: string } = {
   'Solana': 'Sol'
 }
 
-const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empty?: boolean }> = ({ data, type, empty }) => {
+const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own' }> = ({ data, type }) => {
   const { providerInitialized } = useWeb3EnvContext()
 
   const [favorite, setFavorite] = useState<number>(data?.favorite ?? 0)
@@ -140,13 +139,7 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empt
   const { open: openWalletSelectionModal } = useWalletSelectionModal()
 
   const imageUrl = useCallback(() => {
-    const url = data?.image ?? data?.thumbnail ?? ''
-
-    if (url?.startsWith('https://gateway.pinata.cloud')) {
-      return `https://banksy.mypinata.cloud${data?.image.slice(-52)}`
-    }
-
-    return url
+    return data?.image ?? data?.thumbnail ?? ''
   }, [data])
 
   useEffect(() => {
@@ -177,7 +170,6 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empt
           backgroundImage: `url(${require('../assets/images/collectibles-item-corner-flag-bg.png').default})`,
           backgroundSize: 'cover',
           zIndex: 9,
-
         }}
       >
         {status}
@@ -219,10 +211,9 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empt
       {
         data?.onSale && <CornerFlag status="On Sale" />
       }
-      <NFTItemCardContainer $empty={empty}>
+      <NFTItemCardContainer $empty={!data}>
         <Link to={detailUrl}>
           <div className="img-container">
-            {/*<LazyLoad>*/}
             <img
               style={{
                 display: loading || error ? 'none' : '',
@@ -240,7 +231,6 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empt
               }}
               src={imageUrl()}
             />
-            {/*</LazyLoad>*/}
             {
               loading && data && <Spin className="spin" />
             }
@@ -292,7 +282,6 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own', empt
                   />
                 )
               }
-
               <div className="price-value"> {data?.price} </div>
             </div>
           </div>

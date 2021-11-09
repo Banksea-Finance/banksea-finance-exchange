@@ -179,11 +179,8 @@ const UserNFTList: React.FC<any> = ({ list }) => {
         ))
       }
       {
-        new Array(4).fill({}).map((o, index) => (
-          <NFTListItem
-            key={index}
-            empty
-          />
+        new Array(4).fill(undefined).map((o, index) => (
+          <NFTListItem key={index} />
         ))
       }
     </NFTListContainer>

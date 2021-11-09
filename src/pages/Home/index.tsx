@@ -9,9 +9,9 @@ import RightArrow from '@/assets/images/homePageImg/right-arrow.svg'
 import CornerFlag from '@/assets/images/homePageImg/corner-flag-ai.svg'
 import { useHistory } from 'react-router-dom'
 import NFTListItem from '../../components/NFTListItem'
-import { useNFTsQuery } from '@/hooks/queries/useNFTsQuery'
 import { useMediaQuery } from 'react-responsive'
 import coding from '@/assets/images/mockImg/coding.png'
+import { useHomeNFTsQuery } from '@/hooks/queries/useHomeNFTsQuery'
 
 const HomePageContainer = styled.div`
   font-family: 'PingFang SC';
@@ -414,16 +414,23 @@ const NFTListContainer = styled.div`
 
 `
 
-const NFTList: React.FC<any> = ({ list }) => {
+const NFTList: React.FC = () => {
+  const { data } = useHomeNFTsQuery({ typeChain: 'Ethereum', size: 8 })
+
   return (
     <NFTListContainer>
-      {list?.map((nft: any, index: number) => (
+      {data?.records?.map((o: any, index: number) => (
         <NFTListItem
-          data={nft}
+          data={o}
           key={index}
           type="nftList"
         />
       ))}
+      {
+        new Array(5).fill(undefined).map((o, index) => (
+          <NFTListItem key={index} type="nftList" />
+        ))
+      }
     </NFTListContainer>
   )
 }
@@ -515,7 +522,6 @@ const GotoArrow: React.FC<{ path?: string }> = ({ path }) => {
 }
 
 const HomePage: React.FC = () => {
-  const { data } = useNFTsQuery({ typeChain: 'Ethereum', size: 8 })
   const history = useHistory()
 
   return (
@@ -603,8 +609,8 @@ const HomePage: React.FC = () => {
         </InfoContainer>
 
         <NFTContainer>
-          <div className="title">New NFTs</div>
-          <NFTList list={data?.records} fetch={fetch} />
+          <div className="title">Collateralized NFT</div>
+          <NFTList />
         </NFTContainer>
       </BodyContainer>
     </HomePageContainer>
