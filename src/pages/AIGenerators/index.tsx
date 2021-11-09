@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { Button, Checkbox, Image as AntdImage, Image } from 'antd'
 import download from '@/assets/images/AIGeneratorsImg/download.png'
-import { usePersonalNFTsQuery } from '../../hooks/queries/usePersonalNFTsQuery'
-import { aiGeneratorFastStyle, aiStyleList } from '../../apis/ai'
+import { usePersonalNFTsQuery } from '@/hooks/queries/usePersonalNFTsQuery'
+import { aiGeneratorFastStyle, aiStyleList } from '@/apis/ai'
 import { Swiper, SwiperSlide } from 'swiper/react'
 import 'swiper/swiper.scss'
 import SwiperCore, { EffectCoverflow, Navigation, Pagination } from 'swiper'
@@ -469,7 +469,7 @@ const SelectableNFTItem: React.FC<{ src: string, checked?: boolean, onSelect: (_
       style={{
         position: 'relative',
         top: '1rem',
-        display:'flex',
+        display: 'flex',
         justifyContent: 'center'
       }}
       onClick={() => onSelect(src)}
@@ -478,7 +478,7 @@ const SelectableNFTItem: React.FC<{ src: string, checked?: boolean, onSelect: (_
         width={160}
         height={190}
         src={src}
-        style={{ objectFit: 'cover', cursor: 'pointer', borderRadius: '1rem', display:'flex', justifyContent:'center' }}
+        style={{ objectFit: 'cover', cursor: 'pointer', borderRadius: '1rem', display: 'flex', justifyContent: 'center' }}
         preview={false}
       />
       <SelectBtn />
@@ -502,8 +502,8 @@ const SelectableNFTList: React.FC<{ selectedValue: string, onSelect: (_: string)
             onSlideChange={() => console.log('slide change')}
             onSwiper={swiper => console.log(swiper)}
             style={{
-              display:'flex',
-              justifyContent:'center'
+              display: 'flex',
+              justifyContent: 'center'
             }}
           >
             {list?.map((item, key) => (
@@ -537,16 +537,16 @@ const SelectableNFTList: React.FC<{ selectedValue: string, onSelect: (_: string)
 
 const RightArrow: React.FC = () => {
   return (
-    <div style={{ position:'relative', height: '25.2rem', display: 'flex', justifyContent:'center' }}>
+    <div style={{ position: 'relative', height: '25.2rem', display: 'flex', justifyContent: 'center' }}>
 
       <img
         src={require('../../assets/images/AIGeneratorsImg/deep-learning-line.png').default}
         alt=""
         style={{
-          position:'relative',
+          position: 'relative',
           width: 'fit-content',
           height: '50rem',
-          bottom:'15rem',
+          bottom: '15rem',
           left: '5rem'
         }}
       />
@@ -554,10 +554,10 @@ const RightArrow: React.FC = () => {
       <img src={require('../../assets/images/AIGeneratorsImg/deep-learning-model.png').default}
         alt=""
         style={{
-          position:'relative',
+          position: 'relative',
           width: '16rem',
-          height:'16rem',
-          right:'18rem',
+          height: '16rem',
+          right: '18rem',
           top: '2rem'
         }}
       />
@@ -635,7 +635,7 @@ const AIGenerators: React.FC = () => {
               onSelect={v => setStyle(v)}
               list={styleList?.map((style: { url: any }) => style?.url)}
             />
-            { isMobile ? <div /> : <div className="hr-line" style={{ marginTop:'3rem' }} />  }
+            { isMobile ? <div /> : <div className="hr-line" style={{ marginTop: '3rem' }} />  }
           </div>
         </div>
         <div className="head" style={{ marginTop: '5rem' }}>
@@ -651,7 +651,7 @@ const AIGenerators: React.FC = () => {
               list={(personalNFTs as any)?.map((nft: { image: any }) => nft.image)}
             />
 
-            { isMobile ? <div /> : <div className="hr-line" style={{ marginTop:'3rem' }} /> }
+            { isMobile ? <div /> : <div className="hr-line" style={{ marginTop: '3rem' }} /> }
           </div>
         </div>
         {/*<AssetUpload />*/}
@@ -679,7 +679,7 @@ const AIGenerators: React.FC = () => {
               alignItems: 'center',
               padding: '1rem',
               position: 'relative',
-              borderRadius:'1rem'
+              borderRadius: '1rem'
             }}
             >
               {
@@ -721,7 +721,7 @@ const AIGenerators: React.FC = () => {
                 alignItems: 'center',
                 padding: '1rem',
                 position: 'relative',
-                borderRadius:'1rem'
+                borderRadius: '1rem'
               }}
               >
                 {

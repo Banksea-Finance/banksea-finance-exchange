@@ -23,7 +23,10 @@ module.exports = {
     'no-unused-vars': [
       1,
       {
-        argsIgnorePattern: 'res|next|^err|_'
+        argsIgnorePattern: 'res|next|^err|_',
+        ignoreRestSiblings: true,
+        caughtErrors: 'none',
+        args: 'none'
       }
     ],
     'no-console': [0],
@@ -37,6 +40,7 @@ module.exports = {
     'object-curly-spacing': ['error', 'always'],
     'jsx-quotes': ['error', 'prefer-double'],
     'keyword-spacing': ['error', { 'before': true, 'after': true }],
+    'key-spacing': ['error', { 'beforeColon': false, 'afterColon': true, 'mode': 'strict' }],
     'react/jsx-filename-extension': [0],
     'react/prop-types': [0],
     'react/jsx-closing-bracket-location': 'error',
@@ -61,6 +65,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-non-null-assertion': 'off',
-    '@typescript-eslint/no-var-requires': 'off'
+    '@typescript-eslint/no-var-requires': 'off',
+    '@typescript-eslint/no-empty-function': 'off'
   }
 }

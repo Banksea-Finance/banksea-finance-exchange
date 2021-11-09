@@ -459,7 +459,7 @@ const PanelIcon: React.FC<any> = ({ iconName }) => {
 
 const AIFlag: React.FC<any> = () => {
 
-  const isMobile = useMediaQuery({ query:'(max-width: 1000px)' })
+  const isMobile = useMediaQuery({ query: '(max-width: 1000px)' })
   const style: CSSProperties = {
     position: 'absolute',
     zIndex: 1,
@@ -468,10 +468,10 @@ const AIFlag: React.FC<any> = () => {
     top: '0vh'
   }
   const mobileStyle: CSSProperties = {
-    position :'absolute',
+    position: 'absolute',
     width: '20vw',
     right: '0vw',
-    top : '0'
+    top: '0'
   }
   // @ts-ignore
   return (

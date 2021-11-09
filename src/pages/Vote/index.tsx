@@ -464,7 +464,7 @@ const TwitterVoteRegistration: React.FC<VotesType> = ({ current, onPressEnter, r
 const SolanaVotes: React.FC<VotesType> = ({ current, solana, onPressEnter }) => {
   return (
     <VotesContainerTable>
-      <div className={clsx('votes', current === 2 && 'active')} style={{ marginTop:'12rem' }}>
+      <div className={clsx('votes', current === 2 && 'active')} style={{ marginTop: '12rem' }}>
         <div className="search-box">
           <SearchInput
             onPressEnter={onPressEnter}
@@ -681,7 +681,7 @@ const VotePage: React.FC = () => {
     setSearchKey(e.target.attributes[2].value)
     init(e.target.attributes[2].value)
   }
-  const isMobile = useMediaQuery({ query:'(max-width:1000px)' })
+  const isMobile = useMediaQuery({ query: '(max-width:1000px)' })
 
 
   return (

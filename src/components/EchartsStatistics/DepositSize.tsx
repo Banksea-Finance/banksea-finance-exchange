@@ -137,7 +137,7 @@ const DepositSize:React.FC<{ depositStatistics: any }> = ({ depositStatistics })
         min: 0,
         max: 800
       }],
-      splitLine:{ show: false },
+      splitLine: { show: false },
       tooltip: {
         trigger: 'axis'
       },

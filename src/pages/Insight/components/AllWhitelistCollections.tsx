@@ -94,7 +94,7 @@ const AllWhitelistCollections: React.FC<AllWhitelistCollectionsProps> = ({ colle
       width: '110px'
     },
     {
-      title:(
+      title: (
         <TableTitleWithTooltip
           title="Estimated Market Cap"
           tooltip="Estimated market cap is calculated by using 7 day average price * total supply"

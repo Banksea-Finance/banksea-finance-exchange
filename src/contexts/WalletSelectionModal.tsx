@@ -25,8 +25,6 @@ const WalletItemContainer = styled.div`
   font-size: 1.8rem;
   font-weight: 500;
 
-
-
   img {
     width: 5rem;
     height: 5rem;
@@ -39,24 +37,26 @@ const CustomModal = styled(Modal)`
   }
 
   .ant-modal-body,
-  .ant-modal-header{
-    background-color: #111C3A; !important;
+  .ant-modal-header {
+    background-color: #111C3A;
+  !important;
   }
+
   .ant-modal-header {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
     border-bottom: none;
   }
 
-  .ant-modal-title{
+  .ant-modal-title {
     color: white;
     font-weight: 550;
     font-size: 1.6rem;
   }
 
-.ant-modal-close-icon {
-  color: white;
-}
+  .ant-modal-close-icon {
+    color: white;
+  }
 `
 
 const Line = styled.div`
@@ -105,7 +105,7 @@ const WalletSelectionModalProvider: React.FC = ({ children }) => {
   return (
     <WalletSelectionModalContext.Provider value={{ open }}>
       {children}
-      <CustomModal title="Connect To Wallet" visible={visible} footer="" onCancel={close} >
+      <CustomModal title="Connect To Wallet" visible={visible} footer="" onCancel={close}>
         <Line />
         {SUPPORT_WALLETS.filter(o => !o.disable).map(wallet => (
           <WalletItem wallet={wallet} key={wallet.name} />

@@ -3,8 +3,8 @@ import { NFTMetadata } from '@/types/NFTMetadata'
 import { getUriByIpfsHash } from './ipfs'
 import BigNumber from 'bignumber.js'
 
-export const thumbnailAddress = (address?: string) => {
-  return address ? `${address.substring(0, 6)}...${address.slice(-4)}` : '-'
+export const shortenAddress = (address?: string, length = 6) => {
+  return address ? `${address.substring(0, length)}...${address.slice(-length)}` : '-'
 }
 
 export function generateNftMetadata(form: NFTCreateForm): NFTMetadata {
@@ -104,4 +104,11 @@ export function formatTime(time: Date) {
   } else {
     return [Math.ceil(diff / oneYear), ' year', diff / oneYear > 1 ? 's': '', ' ago']
   }
+}
+
+export function chunks<T>(array: T[], size: number): T[][] {
+  return Array.apply<number, T[], T[][]>(
+    0,
+    new Array(Math.ceil(array.length / size))
+  ).map((_, index) => array.slice(index * size, (index + 1) * size))
 }

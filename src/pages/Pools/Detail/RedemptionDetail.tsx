@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { useLocationQuery } from '@/hooks/useLocationQuery'
 import { CopyOutlined } from '@ant-design/icons'
-import { Button, Statistic } from 'antd'
+import { Button } from 'antd'
 import myDashboard1 from '@/assets/images/mockImg/myDashboard1.png'
 import { getNftFavoriteCount } from '@/apis/nft'
 import DepositAPY from '@/components/EchartsStatistics/DepositAPY'
@@ -23,7 +23,7 @@ const Row = styled.div`
 
     .ant-statistic-content-value {
       position: absolute;
-      right: 1rem ;
+      right: 1rem;
       color: #fff;
       font-weight: bolder;
     }
@@ -274,7 +274,7 @@ const ConfirmButton = styled(Button)`
   }
 `
 
-const ScheduleFirst:React.FC = () => {
+const ScheduleFirst: React.FC = () => {
 
   const { requestingModal, openRequestingModal } = useRequestingModal()
 
@@ -294,7 +294,7 @@ const ScheduleFirst:React.FC = () => {
   )
 }
 
-const Statistics:React.FC = () => {
+const Statistics: React.FC = () => {
   return (
     <StatisticsContainer>
       <div className="statistics-price">
@@ -309,7 +309,7 @@ const Statistics:React.FC = () => {
   )
 }
 
-const NFTBaseInfo:React.FC = () => {
+const NFTBaseInfo: React.FC = () => {
   const uri = useLocationQuery('uri')
 
   const [, setLikeNum] = useState<number>()
@@ -362,9 +362,7 @@ const NFTBaseInfo:React.FC = () => {
   )
 }
 
-const { Countdown } = Statistic
-
-const RedemptionDetailPage:React.FC = () => {
+const RedemptionDetailPage: React.FC = () => {
 
   return (
     <NFTMortgageDetailContainer>

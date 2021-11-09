@@ -1,6 +1,24 @@
 import React, { useCallback, useEffect, useState } from 'react'
 
-import styled from 'styled-components'
+import {
+  BuyButton,
+  CollectiblesDetailContainer,
+  CornerFlag,
+  ImageContainer,
+  ItemsContainer,
+  LeftArea,
+  MobileContainer,
+  MobileNFTBaseInfoContainer,
+  NFTBaseInfoContainer,
+  Operating,
+  OtherArtworksArea,
+  OtherArtworksContainer,
+  PriceContainer,
+  PropertiesArea,
+  RightArea,
+  Row,
+  SubTitle
+} from './CollectibleDetail.style'
 import { Button, Image, message, Popover } from 'antd'
 import Show from '@/assets/images/collectibleDetailImg/show.png'
 import Heart from '@/assets/images/collectibleDetailImg/like.png'
@@ -12,7 +30,7 @@ import more1 from '@/assets/images/detailMoreImg/more1.jpg'
 import more2 from '@/assets/images/detailMoreImg/more2.png'
 import more3 from '@/assets/images/detailMoreImg/more3.jpg'
 import more4 from '@/assets/images/detailMoreImg/more4.png'
-import { thumbnailAddress } from '@/utils'
+import { shortenAddress } from '@/utils'
 import { useLocationQuery } from '@/hooks/useLocationQuery'
 import { useSelector } from 'react-redux'
 import { getAccount, getCurrentChain } from '@/store/wallet'
@@ -32,594 +50,7 @@ import { getExchangeInfo } from '@/apis/exchange/solana'
 import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
 import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
 import { useNftDetailQuery } from '@/hooks/queries/useNftDetailQuery'
-import { useHistory } from 'react-router-dom'
 import ThemeTable from '@/styles/ThemeTable'
-
-const Row = styled.div`
-  display: flex;
-  justify-content: center;
-`
-
-const CollectiblesDetailContainer = styled.div`
-  color: black;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  flex-wrap: wrap;
-  padding: 2vw 6vw;
-  position: relative;
-
-  .operating {
-    width: 100%;
-    height: 7rem;
-    position: relative;
-  }
-
-  @media screen and (min-width: 300px) and (max-width: 600px) {
-    width: 100vw !important;
-    height: fit-content;
-    background-color: #0B111E;
-    padding: 0;
-    overflow-x: hidden;
-
-  }
-`
-
-const LeftArea = styled.div`
-  width: fit-content;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  margin-right: 2vw;
-
-`
-
-const RightArea = styled.div`
-  width: 53.9rem;
-  margin-left: 1.3rem;
-  position: relative;
-`
-
-const Operating = styled.div`
-  width: 100%;
-  position: relative;
-  display: flex;
-  justify-content: flex-end;
-
-  .ant-btn {
-    width: fit-content;
-    margin-left: 1vw;
-    background: #354d86;
-    border: none;
-    border-radius: 0.5vw;
-    font-size: 1vw;
-    font-weight: 550;
-    color: #FFFFFF;
-    line-height: 2rem;
-  }
-
-  @media screen and (max-width: 1000px) {
-    display: flex;
-    justify-content: center;
-
-    .ant-btn {
-      width: 40vw;
-      height: 10vw;
-      border-radius: 2vw;
-      font-size: 5vw;
-    }
-  }
-`
-
-const PropertiesArea = styled.div`
-  height: 21rem;
-  width: 30rem;
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  overflow-y: scroll;
-
-  /*::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-    background-color: #98BDF9;
-    border-radius: 0.5rem;
-    margin-left: 0.5rem;
-  }*/
-
-  .properties-group {
-    width: 14.3rem;
-    height: 9.1rem;
-    background: #305099;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-  }
-
-  .properties-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 100%;
-
-    .key {
-      font-size: 1.4rem;
-      font-weight: 550;
-      color: white;
-      line-height: 2rem;
-      margin-top: 1.2rem;
-    }
-
-    .value {
-      margin-top: 0.8rem;
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #98BDF9;
-      line-height: 1.7rem;
-    }
-
-    .percent {
-      margin-top: 0.4rem;
-      font-size: 1.2rem;
-      font-weight: 500;
-      color: #98BDF9;
-      line-height: 1.7rem;
-    }
-  }
-
-  @media screen and (max-width: 600px) {
-    display: flex;
-    justify-content: center;
-    width: 100vw;
-    height: fit-content;
-
-    .mobile-properties {
-      width: 80vw;
-      height: 25vh;
-      background-color: #305099;
-      border-radius: 2rem;
-      padding: 4vw 2vw;
-    }
-
-    .properties-group {
-      width: 35vw;
-      height: 10vh;
-      background: #162d68;
-      border-radius: 1rem;
-    }
-  }
-`
-
-const CornerFlag = styled.div`
-  position: absolute;
-  color: white;
-  bottom: 20vw;
-  right: 16vw;
-  font-weight: 550;
-  text-align: center;
-  width: 4.5vw;
-  height: 2vw;
-  background-image: url(${require('../../assets/images/collectibles-item-corner-flag-bg.png').default});
-  background-size: cover;
-  z-index: 2;
-
-  @media screen and (max-width: 1000px) {
-    top: 3vw;
-    left: 8.7vw;
-    width: 25vw;
-    height: 10vw;
-  }
-`
-
-const ImageContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 31.2rem;
-  height: 34.4rem;
-  border-radius: 2rem;
-  justify-content: center;
-  position: relative;
-  object-fit: cover;
-
-  img {
-    height: 100%;
-    width: 100%;
-    object-fit: cover;
-    border-radius: 2rem;
-  }
-
-  @media screen and (max-width: 600px) {
-    margin-top: 5vw;
-    border: none;
-    height: 100%;
-    width: 100vw;
-
-    img {
-      height: 50vh;
-      width: 80vw;
-      object-fit: cover;
-      border: 1px solid #98BDF9;
-    }
-  }
-`
-
-const PriceContainer = styled.div`
-  .item {
-    display: flex;
-    flex-direction: row;
-    margin-top: 1.2rem;
-
-    .info-label {
-      font-size: 1.6rem;
-      font-weight: 400;
-      color: #A196EF;
-      line-height: 2.2rem;
-      padding-right: 1.4rem;
-    }
-
-    .price {
-      font-size: 3.2rem;
-      font-weight: 400;
-      color: #7C6DEB;
-      line-height: 2.5rem;
-    }
-
-    .price-in-usd {
-      font-size: 1.6rem;
-      font-weight: 400;
-      color: #A196EF;
-      line-height: 2.2rem;
-      margin-left: 1rem;
-    }
-  }
-`
-
-const ItemsContainer = styled.div`
-  margin-top: 2.5rem;
-  display: flex;
-  justify-content: space-between;
-
-  .item {
-    width: 25rem;
-    height: 9.2rem;
-    background: #305099;
-    border-radius: 1rem;
-    padding: 2rem 1.1rem;
-    flex-wrap: wrap;
-
-    .row {
-      display: flex;
-      justify-content: space-between;
-
-      .label {
-        font-size: 1.2rem;
-        font-weight: 500;
-        color: #B3B3B3;
-        line-height: 1.7rem;
-
-      }
-
-      .value {
-        font-size: 1.2rem;
-        font-weight: 550;
-        color: white;
-        line-height: 17px;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-      }
-    }
-
-  }
-
-  @media screen and (max-width: 600px) {
-    display: flex ;
-    justify-content: center ;
-    flex-direction: column ;
-    height: fit-content;
-
-    .item {
-      background: #305099;
-      width: 80vw;
-
-      .row {
-        display: flex;
-        justify-content: space-between;
-      }
-    }
-`
-
-const SubTitle = styled.div`
-  font-size: 2.2rem;
-  font-weight: 550;
-  color: #98BDF9;
-  line-height: 2.2rem;
-  margin-bottom: 4rem;
-
-  @media screen and (max-width: 600px) {
-    padding: 3vh 0;
-    position: relative;
-    display: flex;
-    justify-content: center;
-    margin-bottom: 0;
-    width: 100vw;
-    font-size: 8vw !important;
-  }
-`
-
-const OtherArtworksArea = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 91.7rem;
-  align-self: center;
-  height: 42.2rem;
-  margin-top: 4.9rem;
-
-  @media screen and (max-width: 1000px) {
-    width: 100vw;
-  }
-
-`
-
-const OtherArtworksContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-top: 3rem;
-
-  .artwork-group {
-    height: 30rem;
-    width: 22rem;
-    background-color: #111C3A;
-    border-radius: 1rem;
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
-    position: relative;
-
-    .artwork-info {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-
-      .artwork-img {
-        height: 22rem;
-        width: 22rem;
-        object-fit: cover;
-        border-radius: 10px;
-        display: flex;
-        justify-content: center;
-      }
-
-      .artwork-describe {
-        width: 100%;
-        font-size: 14px;
-        font-weight: 550;
-        color: white;
-        padding: 0 1rem;
-        margin-top: 1.5rem;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        display: -webkit-box;
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-      }
-    }
-
-    .artwork-like {
-      display: flex;
-      padding: 1.0rem 1rem;
-      justify-content: space-between;
-
-      .liked {
-        display: flex;
-        font-size: 14px;
-        font-weight: 500;
-        color: white;
-        line-height: 20px;
-        margin-bottom: 10px;
-      }
-    }
-  }
-
-  @media screen and (max-width: 1000px) {
-    flex-direction: column;
-    justify-content: center;
-    width: 100vw !important;
-
-    .artwork-group {
-      margin-left: calc((100vw - 22rem) / 2);
-      margin-bottom: 5vh;
-    }
-  }
-`
-
-const NFTBaseInfoContainer = styled.div`
-  .nft-name {
-    font-size: 4.5rem;
-    font-weight: 550;
-    color: #98BDF9;
-  }
-
-
-  .description {
-    margin-top: 1.2rem;
-    height: 12.5rem;
-    overflow-y: scroll;
-    font-size: 16px;
-    font-weight: 400;
-    color: #7C6DEB;
-    line-height: 22px;
-  }
-
-  .info-row {
-    margin-top: 0.8rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-
-    &-item {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-
-      &-label {
-        font-size: 1.6rem;
-        font-weight: 550;
-        color: #98BDF9;
-        line-height: 2.2rem;
-        padding-right: 1.4rem;
-      }
-
-      &-value {
-        font-size: 1.6rem;
-        font-weight: 500;
-        color: #98BDF9;
-        line-height: 2.2rem;
-        user-select: none;
-      }
-
-      .icon-copy {
-        margin-left: 0.5rem;
-        color: #98BDF9;
-        cursor: pointer;
-      }
-    }
-  }
-
-  .info-row-favorite {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 6rem;
-
-    .info-row-item-value {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .icon-favorite {
-      width: 2rem;
-      height: 1.2rem;
-      display: flex;
-      align-self: center;
-      margin-right: 0.4rem;
-    }
-  }
-
-  .price-favorite-row {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-
-    div {
-      display: flex;
-      color: #98BDF9;
-      font-weight: 550;
-    }
-
-    .price {
-      align-items: flex-end;
-      line-height: 2.1rem;
-
-      .price-label {
-        font-size: 1.6rem;
-        font-weight: bold;
-        color: #98BDF9;
-        margin-right: 0.8rem;
-      }
-
-      .price-value {
-        font-size: 1.6rem;
-      }
-    }
-
-    .info-name {
-      display: flex;
-      justify-content: flex-end;
-      font-size: 1.6rem;
-    }
-  }
-
-  @media screen and (max-width: 600px) {
-    display: flex;
-    justify-content: center;
-
-    .nft-name {
-      width: fit-content;
-      font-size: 4.5rem;
-      font-weight: 550;
-      color: #98BDF9;
-      padding: 5vh 0;
-    }
-
-    .line {
-      margin-bottom: 5vh;
-      width: 80vw;
-      border-bottom: solid 0.2rem #787A91;
-    }
-  }
-`
-
-const BuyButton = styled(Button)`
-  margin-top: 1.2rem;
-  width: 12vw;
-  height: 40px;
-  background: #305099;
-  color: #FFFFFF;
-  border-radius: 10px;
-  font-size: 1.4rem;
-  font-weight: 500;
-  line-height: 2rem;
-
-  &[disabled] {
-    background: rgba(48, 80, 153, 0.55) !important;
-    color: #999;
-  }
-`
-
-const MobileContainer = styled.div`
-`
-
-const MobileNFTBaseInfoContainer = styled.div`
-  .nft-info {
-    display: flex;
-    justify-content: space-between;
-    padding: 1vh 10.5vw;
-    color: #B2B1B9;
-    font-size: 5vw;
-
-    .info-favorite > img {
-      width: 7vw;
-      height: 2vh;
-      display: flex;
-      align-self: center;
-      margin-right: 2vw;
-    }
-
-    .icon-heart > img {
-      width: 5vw;
-      height: 2vh;
-      display: flex;
-      align-self: center;
-      margin-right: 2vw;
-    }
-
-    .nft-artist-label {
-      font-weight: 550;
-    }
-
-    .nft-artist-value {
-      font-weight: normal;
-    }
-  }
-
-`
 
 const Properties: React.FC = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
@@ -741,8 +172,8 @@ const TradingHistories: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) =>
       key: index,
       event: item?.tokenId,
       price: 20,
-      from: thumbnailAddress(item?.addressFrom),
-      to: thumbnailAddress(item?.addressTo),
+      from: shortenAddress(item?.addressFrom),
+      to: shortenAddress(item?.addressTo),
       date: moment(item.updateTime).fromNow()
     }))
 
@@ -793,7 +224,7 @@ const MobileNFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) =
         <div style={{ display: 'flex' }}>
           <div className="nft-artist-label"> Artist :</div>
           <div className="nft-artist-value">
-            {nftDetail?.nameArtist || thumbnailAddress(nftDetail?.addressCreate)}
+            {nftDetail?.nameArtist || shortenAddress(nftDetail?.addressCreate)}
           </div>
           <CopyOutlined
             className="icon-copy"
@@ -814,7 +245,7 @@ const MobileNFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) =
         <div style={{ display: 'flex' }}>
           <div className="nft-artist-label"> Owner :</div>
           <div className="nft-artist-value">
-            <div className="nft-owner">{thumbnailAddress(nftDetail?.addressOwner)}</div>
+            <div className="nft-owner">{shortenAddress(nftDetail?.addressOwner)}</div>
           </div>
           <CopyOutlined
             className="icon-copy"
@@ -879,7 +310,7 @@ const NFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                 <div className="info-row-item-label">Artist</div>
                 <div className="info-row-item-value">
                   {
-                    nftDetail?.nameArtist || thumbnailAddress(nftDetail?.addressCreate)
+                    nftDetail?.nameArtist || shortenAddress(nftDetail?.addressCreate)
                   }
                 </div>
                 <CopyOutlined
@@ -891,7 +322,7 @@ const NFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                 <div className="info-row-item-label">Owner</div>
                 <div className="info-row-item-value">
                   {
-                    thumbnailAddress(nftDetail?.addressOwner)
+                    shortenAddress(nftDetail?.addressOwner)
                   }
                 </div>
                 <CopyOutlined
@@ -963,7 +394,7 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                       type === 'own' ?
                         <div className="item-value">---</div> :
                         <div className="item-value">
-                          {thumbnailAddress(nftDetail?.addressContract)}
+                          {shortenAddress(nftDetail?.addressContract)}
                         </div>
                     }
                   </div>
@@ -971,7 +402,7 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                 <div className="row">
                   <div className="label" style={{ marginTop: '1.5rem' }}>Token &nbsp;ID：</div>
                   <div className="value" style={{ marginTop: '1.5rem' }}>
-                    {thumbnailAddress(nftDetail?.addressOwner)}
+                    {shortenAddress(nftDetail?.addressOwner)}
                   </div>
                 </div>
               </div>
@@ -982,13 +413,13 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                 <div className="row">
                   <div className="label">Creator&apos;s Address：</div>
                   <div className="value">
-                    {thumbnailAddress(nftDetail?.addressCreate)}
+                    {shortenAddress(nftDetail?.addressCreate)}
                   </div>
                 </div>
                 <div className="row">
                   <div className="label" style={{ marginTop: '1.5rem' }}>Owner&apos;s Address：</div>
                   <div className="value" style={{ marginTop: '1.5rem' }}>
-                    {thumbnailAddress(nftDetail?.addressOwner)}
+                    {shortenAddress(nftDetail?.addressOwner)}
                   </div>
                 </div>
               </div>
@@ -1007,7 +438,7 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
                     type === 'own' ?
                       <div className="item-value">---</div> :
                       <div className="item-value">
-                        {thumbnailAddress(nftDetail?.addressContract)}
+                        {shortenAddress(nftDetail?.addressContract)}
                       </div>
                   }
                 </div>
@@ -1015,7 +446,7 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
               <div className="row">
                 <div className="label" style={{ marginTop: '1.5rem' }}>Token &nbsp;ID：</div>
                 <div className="value" style={{ marginTop: '1.5rem' }}>
-                  {thumbnailAddress(nftDetail?.addressOwner)}
+                  {shortenAddress(nftDetail?.addressOwner)}
                 </div>
               </div>
             </div>
@@ -1023,13 +454,13 @@ const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
               <div className="row">
                 <div className="label">Creator&apos;s Address：</div>
                 <div className="value">
-                  {thumbnailAddress(nftDetail?.addressCreate)}
+                  {shortenAddress(nftDetail?.addressCreate)}
                 </div>
               </div>
               <div className="row">
                 <div className="label" style={{ marginTop: '1.5rem' }}>Owner&apos;s Address：</div>
                 <div className="value" style={{ marginTop: '1.5rem' }}>
-                  {thumbnailAddress(nftDetail?.addressOwner)}
+                  {shortenAddress(nftDetail?.addressOwner)}
                 </div>
               </div>
             </div>
@@ -1164,8 +595,6 @@ const MoreArtworks: React.FC = () => {
 
 const CollectibleDetailPage: React.FC = () => {
   moment.locale('en')
-
-  const history = useHistory()
 
   const { providerInitialized } = useWeb3EnvContext()
 

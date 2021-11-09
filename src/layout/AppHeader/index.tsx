@@ -81,7 +81,7 @@ const Row = styled.div`
   align-items: center;
 `
 
-const Avatar = styled.img `
+const Avatar = styled.img`
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 100%;
@@ -131,19 +131,19 @@ const AppHeader: React.FC<{ onCollapseChanged: () => void }> = ({ onCollapseChan
         <MenuFoldOutlined
           onClick={onCollapseChanged}
           style={{
-            position:'relative',
-            fontSize:'1.5rem',
-            color:'#B2B2B2',
-            display:'flex',
-            justifyContent:'center',
+            position: 'relative',
+            fontSize: '1.5rem',
+            color: '#B2B2B2',
+            display: 'flex',
+            justifyContent: 'center',
             marginRight: '1.5rem'
           }}
         />
         <img
           src={isMobile ? BankseaIconLogo : BankseaTextLogo}
           alt="banksea"
-          style={ isMobile ? { width: '3.5rem' } : { width: '15.6rem',cursor:'pointer' } }
-          onClick={()=> history.push('')}
+          style={{ ...isMobile ? { width: '3.5rem' } : { width: '15.6rem', cursor: 'pointer' }, userSelect: 'none' }}
+          onClick={() => history.push('')}
         />
       </Row>
 
@@ -162,7 +162,12 @@ const AppHeader: React.FC<{ onCollapseChanged: () => void }> = ({ onCollapseChan
           }
           trigger="click"
         >
-          <QuestionCircleFilled style={ isMobile ? { color: '#3A31BD', fontSize: '1.6rem', marginRight: '1rem' } : { color: '#7c6deb', fontSize: '2rem', marginRight: '2.5rem' }} />
+          <QuestionCircleFilled style={isMobile ? { color: '#3A31BD', fontSize: '1.6rem', marginRight: '1rem' } : {
+            color: '#7c6deb',
+            fontSize: '2rem',
+            marginRight: '2.5rem'
+          }}
+          />
         </Popover>
         <ConnectButton>
           <Wallet />

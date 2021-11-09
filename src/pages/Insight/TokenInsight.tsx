@@ -22,7 +22,7 @@ import {
   TokenValuationChange,
   useTokenValuationBaseInfoQuery
 } from '@/hooks/queries/insight/token/useTokenValuationBaseInfoQuery'
-import { formatTime, numberWithCommas, simplifyNumber, thumbnailAddress } from '@/utils'
+import { formatTime, numberWithCommas, shortenAddress, simplifyNumber } from '@/utils'
 import {
   TokenTransaction,
   TokenTransactionType,
@@ -695,7 +695,7 @@ const Transactions: React.FC<{ assetContractAddress?: string, tokenId?: number }
             </>
           }
         >
-          {thumbnailAddress(address)}
+          {shortenAddress(address)}
         </Tooltip>
         : <>-</>
     )

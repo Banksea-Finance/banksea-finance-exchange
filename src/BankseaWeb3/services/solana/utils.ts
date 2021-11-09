@@ -62,7 +62,7 @@ export const getTokenAccountWithMaximumBalance = async (name: SupportedSolanaTok
 
   return {
     tokenAmount: max.amount,
-    tokenAccount:  max.account
+    tokenAccount: max.account
   }
 }
 

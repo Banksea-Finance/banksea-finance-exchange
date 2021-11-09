@@ -148,9 +148,9 @@ const VariableAPY: React.FC = () => {
             color: '#ffffff'
           }
         },
-        axisLine:{
-          lineStyle:{
-            color:'#ffffff'
+        axisLine: {
+          lineStyle: {
+            color: '#ffffff'
           }
         }
       },
