@@ -32,8 +32,6 @@ import more3 from '@/assets/images/detailMoreImg/more3.jpg'
 import more4 from '@/assets/images/detailMoreImg/more4.png'
 import { shortenAddress } from '@/utils'
 import { useLocationQuery } from '@/hooks/useLocationQuery'
-import { useSelector } from 'react-redux'
-import { getAccount, getCurrentChain } from '@/store/wallet'
 import { bankseaWeb3 } from '@/BankseaWeb3'
 import { usePurchaseCheckoutModal } from '@/hooks/modals/usePurchaseCheckoutModal'
 import { usePurchaseBlockedModal } from '@/hooks/modals/usePurchaseBlockedModal'
@@ -47,10 +45,9 @@ import { useMediaQuery } from 'react-responsive'
 import { NftDetail } from '@/types/NFTDetail'
 import { closeExchange } from '@/BankseaWeb3/services/solana/exchange'
 import { getExchangeInfo } from '@/apis/exchange/solana'
-import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
-import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
 import { useNftDetailQuery } from '@/hooks/queries/useNftDetailQuery'
 import ThemeTable from '@/styles/ThemeTable'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const Properties: React.FC = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
@@ -596,12 +593,9 @@ const MoreArtworks: React.FC = () => {
 const CollectibleDetailPage: React.FC = () => {
   moment.locale('en')
 
-  const { providerInitialized } = useWeb3EnvContext()
-
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
 
-  const account = useSelector(getAccount)
-  const currentChain = useSelector(getCurrentChain)
+  const { connected, account } = useSolanaWeb3()
 
   const uri = useLocationQuery('uri') ?? ''
   const contractAddress = useLocationQuery('contractAddress')
@@ -610,7 +604,7 @@ const CollectibleDetailPage: React.FC = () => {
 
   const [reasonOfUnableToBuy, setReasonOfUnableToBuy] = useState<string>()
 
-  const { open: openWalletSelectionModal } = useWalletSelectionModal()
+  const { select } = useSolanaWeb3()
   const { purchaseBlockedModal, openPurchaseBlockedModal } = usePurchaseBlockedModal()
   const { authorizingModal, openAuthorizingModal, closeAuthorizingModal } = useAuthorizingModal()
   const {
@@ -631,7 +625,7 @@ const CollectibleDetailPage: React.FC = () => {
     openAuthorizingModal()
 
     bankseaWeb3.services.purchaseByFixedPrice({
-      account: account!,
+      account: account!.toBase58(),
       nftDetail,
       onAuthorized: () => {
         closeAuthorizingModal()
@@ -667,11 +661,11 @@ const CollectibleDetailPage: React.FC = () => {
     if (nftDetail?.typeChain === 'Solana') {
       // TODO: hack
       // return true
-      return nftDetail?.nftPubKey?.length > 0 && account === nftDetail?.addressOwner
+      return nftDetail?.nftPubKey?.length > 0 && account?.toBase58() === nftDetail?.addressOwner
     }
 
     if (nftDetail?.typeChain === 'Ethereum') {
-      return nftDetail?.tokenId > 0 && account === nftDetail?.addressOwner
+      return nftDetail?.tokenId > 0 && account?.toBase58() === nftDetail?.addressOwner
     }
   }
 
@@ -681,19 +675,18 @@ const CollectibleDetailPage: React.FC = () => {
       return
     }
 
-    if (account === nftDetail?.addressOwner) {
+    if (account?.toBase58() === nftDetail?.addressOwner) {
       setReasonOfUnableToBuy('You CANNOT buy your own NFT')
       return
     }
 
-    if (nftDetail?.typeChain === 'Ethereum' && currentChain !== 'Ethereum'
-      || nftDetail?.typeChain === 'Solana' && currentChain !== 'Solana') {
-      setReasonOfUnableToBuy(`The NFT is on ${nftDetail.typeChain}, but now you are on ${currentChain}`)
+    if (nftDetail?.typeChain === 'Ethereum') {
+      setReasonOfUnableToBuy('The NFT is on Ethereum, but for now we only support Solana.')
       return
     }
 
     setReasonOfUnableToBuy(undefined)
-  }, [account, currentChain, nftDetail])
+  }, [account, nftDetail])
 
   const allowToSoldOut = () => {
     return nftDetail?.onSale && allowToSell()
@@ -775,8 +768,8 @@ const CollectibleDetailPage: React.FC = () => {
               <RightArea>
                 <NFTBaseInfo nftDetail={nftDetail} />
                 {
-                  !providerInitialized ? (
-                    <BuyButton onClick={openWalletSelectionModal}>
+                  !connected ? (
+                    <BuyButton onClick={select}>
                       Connect To A Wallet
                     </BuyButton>
                   ) : (

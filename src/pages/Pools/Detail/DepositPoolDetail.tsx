@@ -5,8 +5,7 @@ import { useHistory, useParams } from 'react-router-dom'
 import { Progress } from 'antd'
 import VariableAPY from '@/components/EchartsStatistics/VariableAPY'
 import { depositPoolsDetail, depositPoolUser } from '@/apis/pool'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const StoragePoolMain = styled.div`
   width: 130rem;
@@ -515,10 +514,9 @@ const IndexValueStatistics:React.FC = () => {
 const DepositPoolDetailPage:React.FC = () => {
   const { id } = useParams<any>()
 
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const [poolDetailData, setPoolDetailData] = useState<any>()
-
   const [poolUserData, setPoolUserData] = useState<any>()
 
   const init = useCallback(async () => {
@@ -529,7 +527,7 @@ const DepositPoolDetailPage:React.FC = () => {
     }, 1000)
 
     await depositPoolUser({
-      walletAddress: account,
+      walletAddress: account?.toBase58(),
       poolId: id
     }).then(res => {
       setPoolUserData(res.data.data)

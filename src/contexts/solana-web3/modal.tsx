@@ -1,9 +1,9 @@
 import styled from 'styled-components'
 import { Modal } from 'antd'
 import React from 'react'
-import { SolanaWallet } from '@/contexts/wallet/index'
+import { SolanaWallet, SupportWalletNames } from '@/contexts/solana-web3/index'
 
-export const CustomModal = styled(Modal)`
+export const WalletSelectionModal = styled(Modal)`
   .ant-modal-content {
     border-radius: 1rem;
   }
@@ -53,11 +53,11 @@ export const WalletItemContainer = styled.div`
   }
 `
 
-export const WalletItem: React.FC<{ wallet: SolanaWallet, onClick: () => void }> = ({ wallet, onClick }) => {
+export const WalletItem: React.FC<{ wallet: SolanaWallet, onClick: (name: SupportWalletNames) => void }> = ({ wallet, onClick }) => {
   const { name, icon } = wallet
 
   return (
-    <WalletItemContainer onClick={onClick}>
+    <WalletItemContainer onClick={() => onClick(name)}>
       <span className="wallet-name">{name}</span>
       <img className="SelectImg" src={icon} alt="" />
     </WalletItemContainer>

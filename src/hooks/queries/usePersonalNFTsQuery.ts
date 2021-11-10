@@ -1,7 +1,6 @@
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { useQuery, UseQueryResult } from 'react-query'
 import { ChainType, personalNftList } from '@/apis/nft'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 type PersonalNFTsQueryParams = {
   current?: number
@@ -11,7 +10,7 @@ type PersonalNFTsQueryParams = {
 }
 
 export function usePersonalNFTsQuery(params: PersonalNFTsQueryParams): UseQueryResult<Array<any>> {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   return useQuery(
     ['PERSONAL_NFT', params],
@@ -22,7 +21,7 @@ export function usePersonalNFTsQuery(params: PersonalNFTsQueryParams): UseQueryR
 
       return await personalNftList({
         ...params,
-        addressOwner: account
+        addressOwner: account.toBase58()
       })
         .then((res: any) =>
           res.data.data.records.map((item: any) => ({

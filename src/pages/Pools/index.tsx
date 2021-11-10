@@ -2,9 +2,7 @@ import React, { useCallback, useEffect } from 'react'
 import styled from 'styled-components'
 import clsx from 'clsx'
 import MarketPage from './Market'
-import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
 import MyDashboardPage from './MyDashboard'
-import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
 import DepositPage from './Deposit'
 import BorrowPage from './Borrow'
 import coding from '@/assets/images/mockImg/coding.png'
@@ -13,8 +11,6 @@ import { Route, Switch, useHistory } from 'react-router-dom'
 import DepositItemDetailPage from './Detail/DepositItemDetail'
 import MortgagePoolDetailPage from './Detail/MortgagePoolDetail'
 import DepositPoolDetailPage from './Detail/DepositPoolDetail'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { poolsConnect } from '@/apis/pool'
 import NFTMortgageDetailPage from './Detail/NFTPrepayDetail'
 import AvailablePurchasePage from './Detail/AvailablePurchase'
@@ -27,6 +23,7 @@ import { RouteComponentProps } from 'react-router'
 import { Property } from 'csstype'
 import { useMediaQuery } from 'react-responsive'
 import { useSideBarCollapsed } from '@/store/app'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 export type PoolPageKeys =
   | 'market'
@@ -127,19 +124,15 @@ const PoolsPage: React.FC = () => {
 
   const moduleName = history.location.pathname.replace('/pools/', '').replace(/\/.+/, '')
 
-  const { providerInitialized } = useWeb3EnvContext()
-
-  const { open: openWalletSelectionModal } = useWalletSelectionModal()
-
-  const account = useSelector(getAccount)
+  const { select, connected, account } = useSolanaWeb3()
 
   const init = useCallback(() => {
-    if (!providerInitialized) {
-      openWalletSelectionModal()
+    if (!connected) {
+      select()
     } else {
-      poolsConnect({ walletAddress: account })
+      poolsConnect({ walletAddress: account?.toBase58() })
     }
-  }, [providerInitialized])
+  }, [connected])
 
   useEffect(() => {
     init()

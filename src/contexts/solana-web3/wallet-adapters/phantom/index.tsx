@@ -1,4 +1,4 @@
-import { WalletAdapter } from '@/contexts/wallet'
+import { WalletAdapter } from '@/contexts/solana-web3'
 import EventEmitter from 'eventemitter3'
 import { PublicKey, Transaction } from '@solana/web3.js'
 import notify from '@/utils/notify'
@@ -21,17 +21,15 @@ interface PhantomProvider {
 }
 
 export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter {
+  _provider?: PhantomProvider
 
   constructor() {
     super()
     this.connect = this.connect.bind(this)
-  }
 
-  private get _provider(): PhantomProvider | undefined {
     if ((window as any)?.solana?.isPhantom) {
-      return (window as any).solana
+      return this._provider = (window as any).solana
     }
-    return undefined
   }
 
   private _handleConnect = (...args: any) => {
@@ -60,7 +58,7 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
   }
 
   get publicKey() {
-    return this._provider?.publicKey ?? PublicKey.default
+    return this._provider?.publicKey
   }
 
   // eslint-disable-next-line
@@ -100,8 +98,6 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
   }
 
   disconnect() {
-    if (this._provider) {
-      this._provider.disconnect()
-    }
+    this._provider?.disconnect()
   }
 }

@@ -3,11 +3,10 @@ import styled from 'styled-components'
 import DepositAPY from '@/components/EchartsStatistics/DepositAPY'
 import { useHistory, useParams } from 'react-router-dom'
 import { depositPoolsDetail, mortgageOpinion } from '@/apis/pool'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { Button, Form, Input } from 'antd'
 import { useBorrowCheckoutModal } from '@/hooks/modals/useBorrowCheckoutModal'
 import { LeftOutlined } from '@ant-design/icons'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const ItemDetailMain = styled.div`
   min-height: 100vh;
@@ -256,7 +255,7 @@ const Option:React.FC = () => {
 }
 
 const Schedule:React.FC<{ data: any }> = ({ data }) => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const [formData, setFormData] = useState<any>()
 
@@ -273,7 +272,7 @@ const Schedule:React.FC<{ data: any }> = ({ data }) => {
 
       setFormData({
         poolName: data?.assetsName,
-        walletAddress: account,
+        walletAddress: account?.toBase58(),
         unit: data?.unit,
         borrowValue: values?.price,
         variableBorrowApy: data?.variableBorrowApy.slice(0,-1) / 100,
@@ -314,7 +313,7 @@ const Schedule:React.FC<{ data: any }> = ({ data }) => {
 
 
 const BorrowItemDetailPage:React.FC = () => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const { id } = useParams<any>()
 
@@ -327,7 +326,7 @@ const BorrowItemDetailPage:React.FC = () => {
       setData(res.data.data)
     })
 
-    await mortgageOpinion({ walletAddress: account }).then(res => {
+    await mortgageOpinion({ walletAddress: account?.toBase58() }).then(res => {
       setOption(res.data.data)
     })
   },[])

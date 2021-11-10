@@ -10,8 +10,8 @@ import configureStore from './store'
 import { Provider } from 'react-redux'
 import { LoadingOutlined } from '@ant-design/icons'
 import { QueryClient, QueryClientProvider } from 'react-query'
-import { WalletProvider } from '@/contexts/wallet'
-import { ConnectionProvider } from './contexts/connection'
+import { SolanaWeb3Provider } from '@/contexts/solana-web3'
+import { SolanaConnectionConfigProvider } from './contexts/solana-connection-config'
 
 const { store, persistor } = configureStore()
 
@@ -22,11 +22,11 @@ ReactDOM.render(
     <PersistGate loading={<LoadingOutlined />} persistor={persistor}>
       <Router>
         <QueryClientProvider client={queryClient}>
-          <ConnectionProvider>
-            <WalletProvider>
+          <SolanaConnectionConfigProvider>
+            <SolanaWeb3Provider>
               <App />
-            </WalletProvider>
-          </ConnectionProvider>
+            </SolanaWeb3Provider>
+          </SolanaConnectionConfigProvider>
         </QueryClientProvider>
       </Router>
     </PersistGate>

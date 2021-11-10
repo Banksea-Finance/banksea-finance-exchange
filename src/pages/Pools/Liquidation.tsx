@@ -4,12 +4,11 @@ import clsx from 'clsx'
 import { Button, Statistic } from 'antd'
 import { useHistory } from 'react-router-dom'
 import { liquidationList } from '@/apis/pool'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import PageLoading from '@/components/PageLoding'
 import { SearchOutlined } from '@ant-design/icons'
 import { ThemeInput } from '@/styles/ThemeInput'
 import { LiquidationSelector } from '@/components/NFTListSelectors'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const MortgageMain = styled.div`
   display: none;
@@ -264,14 +263,14 @@ const NFTMortgages: React.FC<{ data: any }> = ({ data }) => {
 }
 
 const LiquidationListPage: React.FC = () => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const [data, setData] = useState<any>()
 
   const [isLoading, setLoading] = useState<boolean>(true)
 
   const init = useCallback(async () => {
-    await liquidationList({ walletAddress: account }).then(res => {
+    await liquidationList({ walletAddress: account?.toBase58() }).then(res => {
       setData(res.data.data)
     })
     setLoading(false)

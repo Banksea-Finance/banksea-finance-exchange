@@ -7,13 +7,10 @@ import { UploadProps } from 'antd/lib/upload/interface'
 import { RcFile } from 'antd/es/upload'
 import { LoadingOutlined } from '@ant-design/icons'
 import { bankseaWeb3 } from '@/BankseaWeb3'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
-import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
-import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
 import { useHistory } from 'react-router-dom'
 import LoadingModal from '../../components/PleaseWaitModal'
 import { useWalletErrorMessageGetter } from '@/hooks/useWalletErrorMessageGetter'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const ArtistPageContainer = styled.div`
   padding-top: 5.6rem;
@@ -377,13 +374,9 @@ export type NFTCreateForm = {
 }
 
 const NFTCreate: React.FC = () => {
-  const { providerInitialized, networkReady } = useWeb3EnvContext()
-
-  const { open: openWalletSelectionModal } = useWalletSelectionModal()
+  const { select, connected, account } = useSolanaWeb3()
 
   const history = useHistory()
-
-  const account = useSelector(getAccount)
 
   const [form] = Form.useForm<NFTCreateForm>()
 
@@ -441,7 +434,7 @@ const NFTCreate: React.FC = () => {
       return
     }
 
-    bankseaWeb3.services.createNft(formValues, account!)
+    bankseaWeb3.services.createNft(formValues, account!.toBase58())
       .on('pinning_json', () => {
         setHintMessage({
           message: 'Pinning asset JSON to IPFS...',
@@ -486,14 +479,19 @@ const NFTCreate: React.FC = () => {
   const creating = (() => !!hintMessage.message && hintMessage.type === 'hint')()
 
   useEffect(() => {
-    if (providerInitialized && !networkReady) {
-      setHintMessage({ message: 'Please manually switch to the Rinkeby in MetaMask', type: 'error' })
-    }
-
-    if (providerInitialized && networkReady || !providerInitialized) {
+    // if (providerInitialized && !networkReady) {
+    //   setHintMessage({ message: 'Please manually switch to the Rinkeby in MetaMask', type: 'error' })
+    // }
+    //
+    // if (providerInitialized && networkReady || !providerInitialized) {
+    //   setHintMessage({ message: '' })
+    // }
+    if (!connected) {
+      setHintMessage({ message: 'Please connect to a wallet first', type: 'error' })
+    } else {
       setHintMessage({ message: '' })
     }
-  }, [providerInitialized, networkReady])
+  }, [connected])
 
   return (
     <ArtistPageContainer>
@@ -575,27 +573,20 @@ const NFTCreate: React.FC = () => {
         </Announcement>
 
         {
-          !providerInitialized ? (
-            <CreateButton onClick={openWalletSelectionModal}>
+          !connected ? (
+            <CreateButton onClick={select}>
               Connect to Wallet
             </CreateButton>
           ) : (
-            networkReady ? (
-              <CreateButton onClick={handleCreate} disabled={creating}>
-                {
-                  creating
-                    ? 'Creating...'
-                    : 'Create'
-                }
-              </CreateButton>
-            ) : (
-              <CreateButton disabled={true}>
-                Correct Network First
-              </CreateButton>
-            )
+            <CreateButton onClick={handleCreate} disabled={creating}>
+              {
+                creating
+                  ? 'Creating...'
+                  : 'Create'
+              }
+            </CreateButton>
           )
         }
-
 
         <MessageHint {...hintMessage} />
       </ArtistForm>

@@ -1,15 +1,15 @@
 import EventEmitter from 'eventemitter3'
 import { PublicKey, Transaction } from '@solana/web3.js'
-import { WalletAdapter } from '@/contexts/wallet'
+import { WalletAdapter } from '@/contexts/solana-web3'
 import notify from '@/utils/notify'
 
 export class SolongWalletAdapter extends EventEmitter implements WalletAdapter {
-  _publicKey: PublicKey | null;
+  _publicKey?: PublicKey;
   _onProcess: boolean;
-  
+
   constructor() {
     super()
-    this._publicKey = null
+    this._publicKey = undefined
     this._onProcess = false
     this.connect = this.connect.bind(this)
   }
@@ -52,7 +52,7 @@ export class SolongWalletAdapter extends EventEmitter implements WalletAdapter {
 
   disconnect() {
     if (this._publicKey) {
-      this._publicKey = null
+      this._publicKey = undefined
       this.emit('disconnect')
     }
   }

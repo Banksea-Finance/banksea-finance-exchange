@@ -3,18 +3,16 @@ import styled from 'styled-components'
 import clsx from 'clsx'
 import { Button, Progress, Statistic } from 'antd'
 import { useHistory } from 'react-router-dom'
-import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
 import {
   dashboardMortgageAvailable,
   dashboardMortgageMortgaged,
   dashboardMortgagePreorder,
   dashboardUser
 } from '@/apis/pool'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import PageLoading from '@/components/PageLoding'
 import VariableAPY from '@/components/EchartsStatistics/VariableAPY'
 import myDashboard1 from '@/assets/images/mockImg/myDashboard1.png'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const MyDashboardContainer = styled.div`
   width: 135.6rem;
@@ -684,40 +682,34 @@ const NFTLiquidation: React.FC = () => {
 }
 
 const MyDashboardPage: React.FC = () => {
-  const { providerInitialized } = useWeb3EnvContext()
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
+  const walletAddress = account?.toBase58()
 
   const [userInfo, setUserInfo] = useState()
-
   const [mortgageAvailable, setMortgageAvailable] = useState()
-
   const [mortgageMortgaged, setMortgageMortgaged] = useState()
-
   const [, setMortgagePreorder] = useState()
-
   const [depositList, setDepositList] = useState<any>()
-
   const [borrowList, setBorrowList] = useState<any>()
-
   const [isLoading, setLoading] = useState<boolean>(true)
 
   const init = useCallback(async () => {
     await Promise.all([
-      dashboardUser({ walletAddress: account }).then(res => {
+      dashboardUser({ walletAddress }).then(res => {
         setUserInfo(res.data.data.userInfo)
         setDepositList(res.data.data.userDepositList)
         setBorrowList(res.data.data.userBorrowList)
       }),
 
-      dashboardMortgageAvailable({ walletAddress: account }).then(res => {
+      dashboardMortgageAvailable({ walletAddress }).then(res => {
         setMortgageAvailable(res.data.data)
       }),
 
-      dashboardMortgageMortgaged({ walletAddress: account }).then(res => {
+      dashboardMortgageMortgaged({ walletAddress }).then(res => {
         setMortgageMortgaged(res.data.data)
       }),
 
-      dashboardMortgagePreorder({ walletAddress: account }).then(res => {
+      dashboardMortgagePreorder({ walletAddress }).then(res => {
         setMortgagePreorder(res.data.data)
       })
     ])
@@ -732,23 +724,17 @@ const MyDashboardPage: React.FC = () => {
   return (
     <MyDashboardContainer className={clsx('active')}>
       {
-        providerInitialized && (
+        !isLoading ?
           <div>
-            {
-              !isLoading ?
-                <div>
-                  <MyDashboardData>
-                    <DepositInformationArea userInfo={userInfo} depositList={depositList} />
-                    <BorrowInformationArea userInfo={userInfo} borrowList={borrowList} />
-                  </MyDashboardData>
-                  <NFTAvailableMortgages mortgageAvailable={mortgageAvailable} />
-                  <NFTYourMortgage mortgageMortgaged={mortgageMortgaged} />
-                  <NFTLiquidation />
-                </div> :
-                <PageLoading />
-            }
-          </div>
-        )
+            <MyDashboardData>
+              <DepositInformationArea userInfo={userInfo} depositList={depositList} />
+              <BorrowInformationArea userInfo={userInfo} borrowList={borrowList} />
+            </MyDashboardData>
+            <NFTAvailableMortgages mortgageAvailable={mortgageAvailable} />
+            <NFTYourMortgage mortgageMortgaged={mortgageMortgaged} />
+            <NFTLiquidation />
+          </div> :
+          <PageLoading />
       }
     </MyDashboardContainer>
   )

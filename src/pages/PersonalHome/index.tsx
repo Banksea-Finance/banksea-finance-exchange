@@ -8,14 +8,14 @@ import {
   ReactComponent as OfferIcon
 } from '@/assets/images/PersonalPageImg/activity.svg'
 import { ReactComponent as HeartIcon } from '@/assets/images/PersonalPageImg/heart.svg'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import NFTListItem from '@/components/NFTListItem'
 import ListPageLoading from '@/components/ListPageLoading'
 import { usePersonalNFTsQuery } from '@/hooks/queries/usePersonalNFTsQuery'
 import { ChainSelector, OrderSelector, StatusSelector } from '@/components/NFTListSelectors'
 import { BankseaNftTransactionStatus, ChainType } from '@/apis/nft'
 import { ThemeSearchInput } from '@/styles/ThemeSearchInput'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
+import { shortenAddress } from '@/utils'
 
 const PersonalContainer = styled.div`
   width: 120.2rem;
@@ -188,7 +188,7 @@ const UserNFTList: React.FC<any> = ({ list }) => {
 }
 
 const PersonalHomepage: React.FC = () => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
   const [current, setCurrent] = useState<number>(1)
   const [searchKey, setSearchKey] = useState<any>()
   const [, setStatus] = useState<BankseaNftTransactionStatus>()
@@ -206,7 +206,7 @@ const PersonalHomepage: React.FC = () => {
         <Avatar />
         <div className="user-name">Hug me</div>
         <div className="user-id">
-          {account?.substring(0, 6)}...{account?.slice(-4)}
+          {shortenAddress(account?.toBase58())}
           <img src={CopyIcon}
             alt=""
             style={{ width: '1.5rem', height: '1.5rem', marginLeft: '0.8rem' }}

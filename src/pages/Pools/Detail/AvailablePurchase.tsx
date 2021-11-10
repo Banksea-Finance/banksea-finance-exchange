@@ -3,13 +3,12 @@ import styled from 'styled-components'
 import { CopyOutlined } from '@ant-design/icons'
 import { Button } from 'antd'
 import { useParams } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { mortgageConfirm } from '@/apis/pool'
 import neuralNetworks from '@/assets/images/Pools/neuralNetworksImg.png'
 import { useMortgageConfirmModal } from '@/hooks/modals/useNFTMortgageConfirmModal'
 import { useNftDetailQuery } from '@/hooks/queries/useNftDetailQuery'
 import VariableAPY from '@/components/EchartsStatistics/VariableAPY'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const NFTMortgageDetailContainer = styled.div`
   min-height: 100vh;
@@ -289,7 +288,7 @@ type ScheduleAI = {
 }
 
 const Schedule: React.FC<ScheduleAI> = ({ data, openMortgageConfirmModal }) => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const confirm = () => {
     openMortgageConfirmModal()
@@ -297,7 +296,7 @@ const Schedule: React.FC<ScheduleAI> = ({ data, openMortgageConfirmModal }) => {
       uri: data?.valueUri,
       mortgageRate: data?.mortgageRate,
       evaluate: data?.evaluate,
-      walletAddress: account
+      walletAddress: account?.toBase58()
     })
   }
 
@@ -319,7 +318,7 @@ const Schedule: React.FC<ScheduleAI> = ({ data, openMortgageConfirmModal }) => {
           <div className="title">Collateral overview</div>
           <div className="main-text">
             If you agree with the valuation of the NFT,you can make a
-            mortgage,,and the NFT will be locked in the smart contract during
+            mortgage, and the NFT will be locked in the smart contract during
             the mortgage.During the mortgage period,AI Oracle will regularly
             update the valuation of NFT,please pay attention to it regularly.
           </div>

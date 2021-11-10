@@ -4,7 +4,7 @@ import React, { useContext, useEffect, useMemo } from 'react'
 import notify from '@/utils/notify'
 import { ExplorerLink } from '@/components/ExplorerLink'
 import { setProgramIds } from '@/utils/ids'
-import { WalletAdapter } from './wallet'
+import { WalletAdapter } from './solana-web3'
 import { ENV as ChainID } from '@solana/spl-token-registry'
 
 export type Network =
@@ -58,7 +58,7 @@ const DEFAULT_NETWORK: Network = 'devnet'
 const DEFAULT_ENDPOINT = ENDPOINTS[DEFAULT_NETWORK]
 const DEFAULT_SLIPPAGE = 1
 
-const ConnectionContext = React.createContext<ConnectionConfig>({
+const SolanaConnectionConfigContext = React.createContext<ConnectionConfig>({
   endpointUrl: DEFAULT_ENDPOINT.endpointUrl,
   setEndpoint: () => {
   },
@@ -70,7 +70,7 @@ const ConnectionContext = React.createContext<ConnectionConfig>({
   network: DEFAULT_NETWORK
 })
 
-export function ConnectionProvider({ children = undefined as any }) {
+export function SolanaConnectionConfigProvider({ children = undefined as any }) {
   const [endpoint, setEndpoint] = useLocalStorage(
     'connectionEndpts',
     DEFAULT_ENDPOINT.endpointUrl
@@ -130,7 +130,7 @@ export function ConnectionProvider({ children = undefined as any }) {
   }, [sendConnection])
 
   return (
-    <ConnectionContext.Provider
+    <SolanaConnectionConfigContext.Provider
       value={{
         endpointUrl: endpoint,
         setEndpoint,
@@ -142,20 +142,20 @@ export function ConnectionProvider({ children = undefined as any }) {
       }}
     >
       {children}
-    </ConnectionContext.Provider>
+    </SolanaConnectionConfigContext.Provider>
   )
 }
 
-export function useConnection() {
-  return useContext(ConnectionContext).connection as Connection
+export function useSolanaConnection() {
+  return useContext(SolanaConnectionConfigContext).connection as Connection
 }
 
 export function useSendConnection() {
-  return useContext(ConnectionContext)?.sendConnection
+  return useContext(SolanaConnectionConfigContext)?.sendConnection
 }
 
 export function useConnectionConfig() {
-  const context = useContext(ConnectionContext)
+  const context = useContext(SolanaConnectionConfigContext)
   return {
     endpoint: context.endpointUrl,
     setEndpoint: context.setEndpoint,
@@ -164,7 +164,7 @@ export function useConnectionConfig() {
 }
 
 export function useSlippageConfig() {
-  const { slippage, setSlippage } = useContext(ConnectionContext)
+  const { slippage, setSlippage } = useContext(SolanaConnectionConfigContext)
   return { slippage, setSlippage }
 }
 

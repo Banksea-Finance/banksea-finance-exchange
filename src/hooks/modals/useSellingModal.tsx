@@ -3,9 +3,8 @@ import { Button, Checkbox, Form, Input, Modal, Select } from 'antd'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import clsx from 'clsx'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { bankseaWeb3 } from '@/BankseaWeb3'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 
 type MessageHintProps = {
@@ -328,7 +327,7 @@ type SellingModalProps = {
 }
 
 export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: SellingModalProps) => {
-  const account = useSelector(getAccount)
+  const { account } = useSolanaWeb3()
 
   const [checked, setChecked] = useState(false)
 
@@ -360,7 +359,7 @@ export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: Sell
   const handleListing = async (values: typeof formInitialValues) => {
     onStart()
 
-    await bankseaWeb3.services.listByFixedPrice(nftDetail, values.price, account)
+    await bankseaWeb3.services.listByFixedPrice(nftDetail, values.price, account?.toBase58())
 
     onSellingConfirmed()
   }

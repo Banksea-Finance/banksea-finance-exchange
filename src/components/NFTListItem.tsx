@@ -3,11 +3,10 @@ import { Link } from 'react-router-dom'
 import { Spin } from 'antd'
 import { HeartFilled, HeartOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
-import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
-import { useWeb3EnvContext } from '@/contexts/Web3EnvProvider'
 import PriceIcon from '@/assets/images/homePageImg/price-icon.svg'
 import { ChainType, setNftFavorite } from '@/apis/nft'
 import { NftListItem } from '@/types/NFTDetail'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
 const NFTItemCardContainer = styled.div<{$empty?: boolean}>`
   color: #7c6deb;
@@ -129,14 +128,12 @@ const TypeChainThumbnailMapper: { [key in ChainType]?: string } = {
 }
 
 const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own' }> = ({ data, type }) => {
-  const { providerInitialized } = useWeb3EnvContext()
-
   const [favorite, setFavorite] = useState<number>(data?.favorite ?? 0)
   const [isHeart, setHeart] = useState<boolean>(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
 
-  const { open: openWalletSelectionModal } = useWalletSelectionModal()
+  const { select, connected } = useSolanaWeb3()
 
   const imageUrl = useCallback(() => {
     return data?.image ?? data?.thumbnail ?? ''
@@ -193,8 +190,8 @@ const NFTListItem: React.FC<{ data?: NftListItem, type?: 'nftList' | 'own' }> = 
       return
     }
 
-    if (!providerInitialized) {
-      openWalletSelectionModal()
+    if (!connected) {
+      select()
     } else {
       if (isHeart) {
         setFavorite(favorite)

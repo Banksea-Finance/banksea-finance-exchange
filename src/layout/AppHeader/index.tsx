@@ -3,11 +3,9 @@ import styled from 'styled-components'
 import BankseaTextLogo from '@/assets/images/homePageImg/banksea.png'
 import BankseaIconLogo from '@/assets/images/homePageImg/logo-icon.png'
 
-import { Button, Popover } from 'antd'
+import { Popover } from 'antd'
 import Wallet from '@/components/Wallet'
 import { useHistory } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import { getAccount } from '@/store/wallet'
 import { MenuFoldOutlined, QuestionCircleFilled } from '@ant-design/icons'
 import avatar1 from '@/assets/images/headAvatar/avatar1.png'
 import avatar2 from '@/assets/images/headAvatar/avatar2.png'
@@ -20,7 +18,20 @@ import avatar8 from '@/assets/images/headAvatar/avatar8.png'
 import avatar9 from '@/assets/images/headAvatar/avatar9.png'
 import avatar10 from '@/assets/images/headAvatar/avatar10.png'
 import { useMediaQuery } from 'react-responsive'
+import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
+const AVATARS = [
+  avatar1,
+  avatar2,
+  avatar3,
+  avatar4,
+  avatar5,
+  avatar6,
+  avatar7,
+  avatar8,
+  avatar9,
+  avatar10
+]
 
 const AppHeaderContainer = styled.div`
   background-color: black;
@@ -32,48 +43,6 @@ const AppHeaderContainer = styled.div`
   padding: 0 3.2rem;
   border-bottom: solid 0.2rem #4D4D4D;
   z-index: 9999;
-`
-
-const ConnectButton = styled(Button)`
-  &,
-  &:hover,
-  &:active {
-    width: fit-content;
-    height: 3.5rem;
-    background: #554BFF;
-    border-radius: 1rem;
-    border-color: #3a31bd;
-    color: white;
-    font-size: 1.6rem;
-    font-weight: bold;
-    text-align: center;
-    display: flex;
-    align-items: center;
-  }
-
-  &:hover,
-  &:active {
-    background: #3a31bd;
-  }
-
-  @media screen and (max-width: 1000px) {
-    &,
-    &:hover,
-    &:active {
-      width: fit-content;
-      height: 2.5rem;
-      background: #554BFF;
-      border-radius: 2rem;
-      border-color: #3a31bd;
-      color: white;
-      font-size: 1.2rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      text-align: center;
-    }
-
-  }
 `
 
 const Row = styled.div`
@@ -99,23 +68,11 @@ const AvatarNone = styled.div`
 
 const AppHeader: React.FC<{ onCollapseChanged: () => void }> = ({ onCollapseChanged }) => {
   const history = useHistory()
-  const account = useSelector(getAccount)
-  const headerAvatar = [
-    avatar1,
-    avatar2,
-    avatar3,
-    avatar4,
-    avatar5,
-    avatar6,
-    avatar7,
-    avatar8,
-    avatar9,
-    avatar10
-  ]
+  const { account } = useSolanaWeb3()
 
   const random = parseInt(String(10 * Math.random()))
 
-  const headerImg = headerAvatar[random]
+  const headerImg = AVATARS[random]
 
   const toPersonalPage = () => {
     history.push('/personal/home',
@@ -169,9 +126,7 @@ const AppHeader: React.FC<{ onCollapseChanged: () => void }> = ({ onCollapseChan
           }}
           />
         </Popover>
-        <ConnectButton>
-          <Wallet />
-        </ConnectButton>
+        <Wallet />
         {account ?
           <Avatar onClick={toPersonalPage} src={`${headerImg}`} /> :
           <AvatarNone />}
