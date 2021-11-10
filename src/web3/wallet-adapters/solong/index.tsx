@@ -6,6 +6,7 @@ import notify from '@/utils/notify'
 export class SolongWalletAdapter extends EventEmitter implements WalletAdapter {
   _publicKey: PublicKey | null;
   _onProcess: boolean;
+  
   constructor() {
     super()
     this._publicKey = null

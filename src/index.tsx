@@ -9,9 +9,9 @@ import App from './App'
 import configureStore from './store'
 import { Provider } from 'react-redux'
 import { LoadingOutlined } from '@ant-design/icons'
-import { Web3EnvContextProvider } from './contexts/Web3EnvProvider'
-import { WalletSelectionModalProvider } from './contexts/WalletSelectionModal'
 import { QueryClient, QueryClientProvider } from 'react-query'
+import { WalletProvider } from '@/contexts/wallet'
+import { ConnectionProvider } from './contexts/connection'
 
 const { store, persistor } = configureStore()
 
@@ -22,11 +22,11 @@ ReactDOM.render(
     <PersistGate loading={<LoadingOutlined />} persistor={persistor}>
       <Router>
         <QueryClientProvider client={queryClient}>
-          <Web3EnvContextProvider>
-            <WalletSelectionModalProvider>
+          <ConnectionProvider>
+            <WalletProvider>
               <App />
-            </WalletSelectionModalProvider>
-          </Web3EnvContextProvider>
+            </WalletProvider>
+          </ConnectionProvider>
         </QueryClientProvider>
       </Router>
     </PersistGate>

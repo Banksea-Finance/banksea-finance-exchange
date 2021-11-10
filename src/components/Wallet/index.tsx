@@ -1,13 +1,11 @@
-import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
-import { getAccount, getSelectedWallet, setAccount, setCurrentChain, setSelectedWallet } from '../../store/wallet'
-import { getIconByWalletName, getWeb3ProviderByWallet, WalletNames } from '@/web3/wallets'
-import WalletConnectProvider from '@walletconnect/web3-provider'
+import React, { useMemo, useState } from 'react'
+import { useSelector } from 'react-redux'
+import { getSelectedWallet } from '@/store/wallet'
+import { getIconByWalletName } from '@/web3/wallets'
 import styled from 'styled-components'
-import { useWalletSelectionModal } from '@/contexts/WalletSelectionModal'
-import { bankseaWeb3 } from '@/BankseaWeb3'
 import MetamaskAvatar from '../MetamaskAvatar'
 import { Button, Modal } from 'antd'
+import { useWallet } from '@/contexts/wallet'
 
 type CurrentAccountProps = {
   account: string
@@ -102,24 +100,7 @@ const Line = styled.div`
 `
 
 const WalletModalContent: React.FC<WalletModalContentProps> = ({ account }) => {
-  const dispatch = useDispatch()
-  const selectedWallet = useSelector(getSelectedWallet) as WalletNames
-
-  const disconnect = async () => {
-    bankseaWeb3.destroy()
-
-    dispatch(setSelectedWallet(undefined))
-    dispatch(setAccount(null))
-    dispatch(setCurrentChain(undefined))
-
-    if (selectedWallet === 'WalletConnect') {
-      const chainId: number = parseInt(process.env.CHAIN_ID!, 16)
-      const RPCUrl: string = process.env.RPC_URL!
-      const provider = await getWeb3ProviderByWallet({ chainId, RPCUrl }, selectedWallet)
-      const walletConnectProvider = provider?.provider as WalletConnectProvider
-      walletConnectProvider.disconnect()
-    }
-  }
+  const { disconnect } = useWallet()
 
   return (
     <div className="wallet-modal-content">
@@ -135,8 +116,6 @@ const WalletModalContent: React.FC<WalletModalContentProps> = ({ account }) => {
     </div>
   )
 }
-
-
 
 const CurrentAccount: React.FC<CurrentAccountProps> = ({ account }) => {
   const [isModalVisible, setIsModalVisible] = useState(false)
@@ -176,22 +155,28 @@ const CurrentAccount: React.FC<CurrentAccountProps> = ({ account }) => {
 }
 
 const ConnectToWallet = () => {
-  // const [modalVisible, setModalVisible] = useState<boolean>(false)
-
-  const { open } = useWalletSelectionModal()
+  // const { open } = useWalletSelectionModal()
+  const { select } = useWallet()
 
   return (
     <div className="toAmount">
-      <span onClick={open} className="toAmountText">
+      <span onClick={select} className="toAmountText">
         Connect
       </span>
-      {/*<WalletSelectionModal visible={modalVisible} onClose={() => setModalVisible(false)} />*/}
     </div>
   )
 }
 
 const Wallet: React.FC = () => {
-  const account = useSelector(getAccount)
+  const { adapter, connected } = useWallet()
+
+  const account = useMemo(() => {
+    if (!connected) {
+      return undefined
+    }
+
+    return adapter!.publicKey!.toBase58()
+  }, [adapter, connected])
 
   return (
     <div className="wallet">

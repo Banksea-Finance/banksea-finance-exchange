@@ -1,81 +1,79 @@
 import useLocalStorage from '@/hooks/useLocalStotrage'
-import {
-  Account,
-  clusterApiUrl,
-  Connection,
-  PublicKey,
-  PublicKeyData,
-  Transaction,
-  TransactionInstruction
-} from '@solana/web3.js'
-import React, { useContext, useEffect, useMemo, useState } from 'react'
+import { Account, clusterApiUrl, Connection, Transaction, TransactionInstruction } from '@solana/web3.js'
+import React, { useContext, useEffect, useMemo } from 'react'
 import notify from '@/utils/notify'
 import { ExplorerLink } from '@/components/ExplorerLink'
 import { setProgramIds } from '@/utils/ids'
 import { WalletAdapter } from './wallet'
-import { cache, getMultipleAccounts, MintParser } from './accounts'
-import { ENV as ChainID, TokenInfo, TokenListProvider } from '@solana/spl-token-registry'
+import { ENV as ChainID } from '@solana/spl-token-registry'
 
-export type ENV =
+export type Network =
   | 'mainnet-beta'
   | 'testnet'
   | 'devnet'
   | 'localnet';
 
-export const ENDPOINTS = [
-  {
-    name: 'mainnet-beta' as ENV,
-    endpoint: 'https://solana-api.projectserum.com/',
-    chainID: ChainID.MainnetBeta,
-  },
-  {
-    name: 'testnet' as ENV,
-    endpoint: clusterApiUrl('testnet'),
-    chainID: ChainID.Testnet,
-  },
-  {
-    name: 'devnet' as ENV,
-    endpoint: clusterApiUrl('devnet'),
-    chainID: ChainID.Devnet,
-  },
-  {
-    name: 'localnet' as ENV,
-    endpoint: 'http://127.0.0.1:8899',
-    chainID: ChainID.Devnet,
-  },
-]
-
-const DEFAULT = ENDPOINTS[2].endpoint
-const DEFAULT_SLIPPAGE = 0.25
-
 interface ConnectionConfig {
   connection: Connection;
   sendConnection: Connection;
-  endpoint: string;
+  endpointUrl: string;
   slippage: number;
   setSlippage: (_val: number) => void;
-  env: ENV;
+  network: Network;
   setEndpoint: (_val: string) => void;
-  tokens: TokenInfo[];
-  tokenMap: Map<string, TokenInfo>;
 }
 
+export type Endpoint = {
+  name: Network
+  endpointUrl: string
+  chainID: ChainID,
+}
+
+// eslint-disable-next-line no-unused-vars
+export const ENDPOINTS: { [key in Network]: Endpoint } = {
+  'mainnet-beta': {
+    name: 'mainnet-beta' as Network,
+    endpointUrl: 'https://solana-api.projectserum.com/',
+    chainID: ChainID.MainnetBeta
+  },
+  'testnet': {
+    name: 'testnet' as Network,
+    endpointUrl: clusterApiUrl('testnet'),
+    chainID: ChainID.Testnet
+  },
+  'devnet': {
+    name: 'devnet' as Network,
+    endpointUrl: clusterApiUrl('devnet'),
+    chainID: ChainID.Devnet
+  },
+  'localnet': {
+    name: 'localnet' as Network,
+    endpointUrl: 'http://127.0.0.1:8899',
+    chainID: ChainID.Devnet
+  }
+}
+
+const DEFAULT_NETWORK: Network = 'devnet'
+
+const DEFAULT_ENDPOINT = ENDPOINTS[DEFAULT_NETWORK]
+const DEFAULT_SLIPPAGE = 1
+
 const ConnectionContext = React.createContext<ConnectionConfig>({
-  endpoint: DEFAULT,
-  setEndpoint: () => {},
+  endpointUrl: DEFAULT_ENDPOINT.endpointUrl,
+  setEndpoint: () => {
+  },
   slippage: DEFAULT_SLIPPAGE,
-  setSlippage: (_val: number) => {},
-  connection: new Connection(DEFAULT, 'recent'),
-  sendConnection: new Connection(DEFAULT, 'recent'),
-  env: ENDPOINTS[2].name,
-  tokens: [],
-  tokenMap: new Map<string, TokenInfo>(),
+  setSlippage: (_val: number) => {
+  },
+  connection: new Connection(DEFAULT_ENDPOINT.endpointUrl, 'recent'),
+  sendConnection: new Connection(DEFAULT_ENDPOINT.endpointUrl, 'recent'),
+  network: DEFAULT_NETWORK
 })
 
 export function ConnectionProvider({ children = undefined as any }) {
   const [endpoint, setEndpoint] = useLocalStorage(
     'connectionEndpts',
-    ENDPOINTS[2].endpoint
+    DEFAULT_ENDPOINT.endpointUrl
   )
 
   const [slippage, setSlippage] = useLocalStorage(
@@ -84,48 +82,14 @@ export function ConnectionProvider({ children = undefined as any }) {
   )
 
   const connection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
+    endpoint
   ])
   const sendConnection = useMemo(() => new Connection(endpoint, 'recent'), [
-    endpoint,
+    endpoint
   ])
 
-  const chain =
-    ENDPOINTS.find(end => end.endpoint === endpoint) || ENDPOINTS[2]
+  const chain = ENDPOINTS[endpoint as Network] ?? DEFAULT_ENDPOINT
   const env = chain.name
-
-  const [tokens, setTokens] = useState<TokenInfo[]>([])
-  const [tokenMap, setTokenMap] = useState<Map<string, TokenInfo>>(new Map())
-  useEffect(() => {
-    cache.clear();
-    // fetch token files
-    (async () => {
-      const res = await new TokenListProvider().resolve()
-      const list = res
-        .filterByChainId(chain.chainID)
-        .excludeByTag('nft')
-        .getList()
-      // @ts-ignore
-      const knownMints = list.reduce((map, item) => {
-        map.set(item.address, item)
-        return map
-      }, new Map<string, TokenInfo>())
-
-      // @ts-ignore
-      const accounts = await getMultipleAccounts(connection, [...knownMints.keys()], 'single')
-      accounts.keys.forEach((key: PublicKeyData, index: number) => {
-        const account = accounts.array[index]
-        if (!account) {
-          return
-        }
-
-        cache.add(new PublicKey(key), account, MintParser)
-      })
-
-      setTokenMap(knownMints)
-      setTokens(list)
-    })()
-  }, [connection, chain])
 
   setProgramIds(env)
 
@@ -133,7 +97,8 @@ export function ConnectionProvider({ children = undefined as any }) {
   // is empty after opening its first time, preventing subsequent subscriptions from receiving responses.
   // This is a hack to prevent the list from every getting empty
   useEffect(() => {
-    const id = connection.onAccountChange(new Account().publicKey, () => {})
+    const id = connection.onAccountChange(new Account().publicKey, () => {
+    })
     return () => {
       connection.removeAccountChangeListener(id)
     }
@@ -149,7 +114,8 @@ export function ConnectionProvider({ children = undefined as any }) {
   useEffect(() => {
     const id = sendConnection.onAccountChange(
       new Account().publicKey,
-      () => {}
+      () => {
+      }
     )
     return () => {
       sendConnection.removeAccountChangeListener(id)
@@ -166,15 +132,13 @@ export function ConnectionProvider({ children = undefined as any }) {
   return (
     <ConnectionContext.Provider
       value={{
-        endpoint,
+        endpointUrl: endpoint,
         setEndpoint,
         slippage: parseFloat(slippage),
         setSlippage: val => setSlippage(val.toString()),
         connection,
         sendConnection,
-        tokens,
-        tokenMap,
-        env,
+        network: env
       }}
     >
       {children}
@@ -193,11 +157,9 @@ export function useSendConnection() {
 export function useConnectionConfig() {
   const context = useContext(ConnectionContext)
   return {
-    endpoint: context.endpoint,
+    endpoint: context.endpointUrl,
     setEndpoint: context.setEndpoint,
-    env: context.env,
-    tokens: context.tokens,
-    tokenMap: context.tokenMap,
+    env: context.network
   }
 }
 
@@ -207,7 +169,7 @@ export function useSlippageConfig() {
 }
 
 const getErrorForTransaction = async (connection: Connection, txid: string) => {
-  // wait for all confirmation before geting transaction
+  // wait for all confirmation before getting transaction
   await connection.confirmTransaction(txid, 'max')
 
   const tx = await connection.getParsedConfirmedTransaction(txid)
@@ -250,7 +212,7 @@ export const sendTransaction = async (
     await connection.getRecentBlockhash('max')
   ).blockhash
   transaction.setSigners(
-    // fee payied by the wallet owner
+    // fee paid by the wallet owner
     wallet.publicKey,
     ...signers.map(s => s.publicKey)
   )
@@ -261,7 +223,7 @@ export const sendTransaction = async (
   const rawTransaction = transaction.serialize()
   const options = {
     skipPreflight: true,
-    commitment: 'singleGossip',
+    commitment: 'singleGossip'
   }
 
   const txid = await connection.sendRawTransaction(rawTransaction, options)
@@ -283,10 +245,10 @@ export const sendTransaction = async (
             {errors.map((err, index) => (
               <div key={index}>{err}</div>
             ))}
-            <ExplorerLink address={txid} type="transaction" />
+            <ExplorerLink address={txid} type={'transaction'} />
           </>
         ),
-        type: 'error',
+        type: 'error'
       })
 
       throw new Error(

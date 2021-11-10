@@ -58,10 +58,10 @@ async function ledgerSend(
   return reply.slice(0, reply.length - 2)
 }
 
-const BIP32_HARDENED_BIT = (1 << 31) >>> 0
-function harden(n = 0) {
-  return (n | BIP32_HARDENED_BIT) >>> 0
-}
+// const BIP32_HARDENED_BIT = (1 << 31) >>> 0
+// function harden(n = 0) {
+//   return (n | BIP32_HARDENED_BIT) >>> 0
+// }
 
 export function getSolanaDerivationPath(account?: number, change?: number) {
   let length
@@ -77,16 +77,16 @@ export function getSolanaDerivationPath(account?: number, change?: number) {
 
   const derivationPath = Buffer.alloc(1 + length * 4)
   // eslint-disable-next-line
-  var offset = 0;
-  offset = derivationPath.writeUInt8(length, offset)
-  offset = derivationPath.writeUInt32BE(harden(44), offset) // Using BIP44
-  offset = derivationPath.writeUInt32BE(harden(501), offset) // Solana's BIP44 path
+  // var offset = 0;
+  // offset = derivationPath.writeUInt8(length, offset)
+  // offset = derivationPath.writeUInt32BE(harden(44), offset) // Using BIP44
+  // offset = derivationPath.writeUInt32BE(harden(501), offset) // Solana's BIP44 path
 
   if (length > 2) {
-    offset = derivationPath.writeUInt32BE(harden(account), offset)
+    // offset = derivationPath.writeUInt32BE(harden(account), offset)
     if (length === 4) {
       // @FIXME: https://github.com/project-serum/spl-token-wallet/issues/59
-      offset = derivationPath.writeUInt32BE(harden(change), offset)
+      // offset = derivationPath.writeUInt32BE(harden(change), offset)
     }
   }
 

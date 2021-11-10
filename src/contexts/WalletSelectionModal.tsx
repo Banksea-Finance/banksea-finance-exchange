@@ -69,9 +69,7 @@ const Line = styled.div`
 `
 
 const WalletSelectionModalContext = React.createContext({
-  open: () => {
-    return
-  }
+  open: () => {}
 })
 
 const WalletItem: React.FC<WalletCardProps> = ({ wallet }) => {

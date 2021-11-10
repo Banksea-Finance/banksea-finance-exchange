@@ -7,6 +7,7 @@ type PhantomEvent = 'disconnect' | 'connect'
 type PhantomRequestMethod = 'connect' | 'disconnect' | 'signTransaction' | 'signAllTransactions'
 
 interface PhantomProvider {
+  isPhantom: boolean
   publicKey?: PublicKey
   isConnected?: boolean
   autoApprove?: boolean
@@ -26,7 +27,7 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
     this.connect = this.connect.bind(this)
   }
 
-  private static get _provider(): PhantomProvider | undefined {
+  private get _provider(): PhantomProvider | undefined {
     if ((window as any)?.solana?.isPhantom) {
       return (window as any).solana
     }
@@ -42,42 +43,44 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
   }
 
   get connected() {
-    return PhantomWalletAdapter._provider?.isConnected || false
+    return this._provider?.isConnected || false
   }
 
   get autoApprove() {
-    return PhantomWalletAdapter._provider?.autoApprove || false
+    return this._provider?.autoApprove || false
   }
 
   // eslint-disable-next-line
   async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
-    if (!PhantomWalletAdapter._provider) {
+    if (!this._provider) {
       return transactions
     }
 
-    return PhantomWalletAdapter._provider.signAllTransactions(transactions)
+    return this._provider.signAllTransactions(transactions)
   }
 
   get publicKey() {
-    return PhantomWalletAdapter._provider?.publicKey ?? PublicKey.default
+    return this._provider?.publicKey ?? PublicKey.default
   }
 
   // eslint-disable-next-line
   async signTransaction(transaction: Transaction) {
-    if (!PhantomWalletAdapter._provider) {
+    if (!this._provider) {
       return transaction
     }
 
-    return PhantomWalletAdapter._provider.signTransaction(transaction)
+    return this._provider.signTransaction(transaction)
   }
 
-  connect() {
-    if (!PhantomWalletAdapter._provider) {
+  async connect() {
+    const provider = this._provider
+
+    if (!provider) {
+      console.error('Provider for Phantom not found')
       return
     }
 
-    if (!((window as any).solana.isPhantom)) {
-
+    if (!provider.isPhantom) {
       notify({
         message: 'Phantom Error',
         description: 'Please install Phantom wallet from Chrome ',
@@ -86,18 +89,19 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
     }
 
 
-    if (PhantomWalletAdapter._provider && !PhantomWalletAdapter._provider.listeners('connect').length) {
-      PhantomWalletAdapter._provider?.on('connect', this._handleConnect)
+    if (!provider.listeners('connect').length) {
+      this._provider?.on('connect', this._handleConnect)
     }
-    if (!PhantomWalletAdapter._provider.listeners('disconnect').length) {
-      PhantomWalletAdapter._provider?.on('disconnect', this._handleDisconnect)
+    if (!provider.listeners('disconnect').length) {
+      this._provider?.on('disconnect', this._handleDisconnect)
     }
-    return PhantomWalletAdapter._provider?.connect()
+
+    return await provider.connect()
   }
 
   disconnect() {
-    if (PhantomWalletAdapter._provider) {
-      PhantomWalletAdapter._provider.disconnect()
+    if (this._provider) {
+      this._provider.disconnect()
     }
   }
 }
