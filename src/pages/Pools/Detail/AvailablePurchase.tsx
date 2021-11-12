@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom'
 import { mortgageConfirm } from '@/apis/pool'
 import neuralNetworks from '@/assets/images/Pools/neuralNetworksImg.png'
 import { useMortgageConfirmModal } from '@/hooks/modals/useNFTMortgageConfirmModal'
-import { useNftDetailQuery } from '@/hooks/queries/useNftDetailQuery'
+import { useNFTDetailQuery } from '@/hooks/queries/useNFTDetailQuery'
 import VariableAPY from '@/components/EchartsStatistics/VariableAPY'
 import { useSolanaWeb3 } from '@/contexts/solana-web3'
 
@@ -332,7 +332,7 @@ const Schedule: React.FC<ScheduleAI> = ({ data, openMortgageConfirmModal }) => {
 const AvailablePurchasePage: React.FC = () => {
   const { uri } = useParams<any>()
 
-  const { data } = useNftDetailQuery({ uri })
+  const { data } = useNFTDetailQuery({ uri })
 
   const { mortgageConfirmModal, openMortgageConfirmModal } = useMortgageConfirmModal()
 

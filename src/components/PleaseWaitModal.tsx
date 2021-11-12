@@ -44,7 +44,8 @@ const CreateLoadingModal = styled(Modal)`
 
 const LoadingModal: React.FC<any> = ({ visible }) => {
   return (
-    <CreateLoadingModal title={null}
+    <CreateLoadingModal
+      title={null}
       visible={visible}
       footer={null}
       maskClosable={false}

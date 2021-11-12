@@ -13,8 +13,9 @@ import { LedgerWalletAdapter, PhantomWalletAdapter, SolongWalletAdapter } from '
 const ASSETS_URL = 'https://raw.githubusercontent.com/solana-labs/oyster/main/assets/wallets/'
 
 export interface WalletAdapter extends EventEmitter {
-  publicKey?: PublicKey;
-  signTransaction: (_transaction: Transaction) => Promise<Transaction>;
+  publicKey: PublicKey;
+  signTransaction: (tx: Transaction) => Promise<Transaction>;
+  signAllTransactions: (txs: Transaction[]) => Promise<Transaction[]>;
   connect: () => any;
   disconnect: () => any;
 }
@@ -91,7 +92,7 @@ const SolanaWeb3Context = React.createContext<WalletContextValues>({
 })
 
 export const SolanaWeb3Provider: React.FC = ({ children }) => {
-  const { endpoint } = useConnectionConfig()
+  const { endpointUrl } = useConnectionConfig()
 
   const [wallet, setWallet] = useState<SolanaWallet>()
   const [connected, setConnected] = useState(false)
@@ -108,10 +109,10 @@ export const SolanaWeb3Provider: React.FC = ({ children }) => {
 
       return new (wallet.adapter || Wallet)(
         wallet.url,
-        endpoint
+        endpointUrl
       ) as WalletAdapter
     },
-    [wallet, endpoint]
+    [wallet, endpointUrl]
   )
 
   // after wallet being set, automatically execute connect method

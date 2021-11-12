@@ -15,11 +15,17 @@ export class SolongWalletAdapter extends EventEmitter implements WalletAdapter {
   }
 
   get publicKey() {
-    return this._publicKey
+    return this._publicKey ?? PublicKey.default
   }
 
   async signTransaction(transaction: Transaction) {
     return (window as any).solong.signTransaction(transaction)
+  }
+
+  async signAllTransactions(txs: Transaction[]): Promise<Transaction[]> {
+    return await Promise.all(
+      txs.map(tx => this.signTransaction(tx))
+    )
   }
 
   connect() {

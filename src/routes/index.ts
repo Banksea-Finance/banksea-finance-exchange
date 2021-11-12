@@ -11,10 +11,9 @@ import { ReactComponent as MarketplaceIcon } from '@/assets/images/menu-icons/ma
 import { ReactComponent as PriceAirDropIcon } from '@/assets/images/menu-icons/priceAirDrop.svg'
 
 import { CollectibleDetailPage } from '@/pages/Marketplace/CollectibleDetail'
-import NFTCreatePage from '@/pages/Home/NFTCreate'
+import NFTCreatePage from '@/pages/NftCreate'
 import PersonalHomepage from '@/pages/PersonalHome/index'
-import PleaseWaiting from '@/pages/Home/PleaseWaiting'
-import NFTCreatedSuccess from '@/pages/Home/NFTCreatedSuccess'
+import NFTCreatedSuccess from '@/pages/NftCreate/NFTCreatedSuccess'
 import AIGenerators from '@/pages/AIGenerators'
 import FarmPage from '@/pages/Farms'
 import VotePage from '@/pages/Vote'
@@ -26,12 +25,13 @@ import InsightPage from '@/pages/Insight'
 import CollectionValuationPage from '@/pages/Insight/CollectionInsight'
 import NFTValuationPage from '@/pages/Insight/TokenInsight'
 import { EyeOutlined } from '@ant-design/icons'
+import React from 'react'
 
 export type Route = {
   path: string
   title: string
   icon?: any
-  component: any
+  component?: React.FC<any>
   hidden?: boolean
   match?: RegExp
   pools?: boolean
@@ -114,7 +114,6 @@ const routes: Route[] = [
     path: '/artists',
     title: 'Artists',
     icon: ArtistsIcon,
-    component: PleaseWaiting,
     disable: true
   },
   {
@@ -128,7 +127,6 @@ const routes: Route[] = [
     path: '/oracle',
     title: 'Oracle',
     icon: OracleIcon,
-    component: PleaseWaiting,
     disable: true
   },
   {
@@ -136,13 +134,6 @@ const routes: Route[] = [
     title: 'Personal Homepage',
     icon: FarmsIcon,
     component: PersonalHomepage,
-    hidden: true
-  },
-  {
-    path: '/pleaseWaiting',
-    title: 'PleaseWaiting',
-    icon: FarmsIcon,
-    component: PleaseWaiting,
     hidden: true
   },
   {

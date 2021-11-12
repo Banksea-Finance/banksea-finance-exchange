@@ -58,7 +58,7 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
   }
 
   get publicKey() {
-    return this._provider?.publicKey
+    return this._provider?.publicKey ?? PublicKey.default
   }
 
   // eslint-disable-next-line
@@ -68,6 +68,14 @@ export class PhantomWalletAdapter extends EventEmitter implements WalletAdapter 
     }
 
     return this._provider.signTransaction(transaction)
+  }
+
+  async signAllTransaction(txs: Transaction[]) {
+    if (!this._provider) {
+      return txs
+    }
+
+    return this._provider.signAllTransactions(txs)
   }
 
   async connect() {

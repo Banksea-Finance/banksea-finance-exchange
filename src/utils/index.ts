@@ -1,4 +1,4 @@
-import { NFTCreateForm } from '@/pages/Home/NFTCreate'
+import { NFTCreateForm } from '@/pages/NftCreate'
 import { NFTMetadata } from '@/types/NFTMetadata'
 import { getUriByIpfsHash } from './ipfs'
 import BigNumber from 'bignumber.js'

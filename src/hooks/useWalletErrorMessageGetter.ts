@@ -6,7 +6,24 @@ function useWalletErrorMessageGetter(): { getWalletErrorMessage: (_e: any) => an
   const { wallet } = useSolanaWeb3()
 
   const getWalletErrorMessage = useCallback((e: any) => {
-    return e?.toString()
+    console.log(e)
+    if (!wallet) {
+      try {
+        return JSON.stringify(e)
+      } catch (e) {
+        return e?.toString()
+      }
+    }
+
+    if (wallet.name === 'Phantom') {
+      return e.message
+    }
+
+    try {
+      return JSON.stringify(e)
+    } catch (e) {
+      return e?.toString()
+    }
   }, [wallet])
 
   return {

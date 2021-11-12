@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import {
   BuyButton,
@@ -31,8 +31,7 @@ import more2 from '@/assets/images/detailMoreImg/more2.png'
 import more3 from '@/assets/images/detailMoreImg/more3.jpg'
 import more4 from '@/assets/images/detailMoreImg/more4.png'
 import { shortenAddress } from '@/utils'
-import { useLocationQuery } from '@/hooks/useLocationQuery'
-import { bankseaWeb3 } from '@/BankseaWeb3'
+import { useLocationQueries, useLocationQuery } from '@/hooks/useLocationQuery'
 import { usePurchaseCheckoutModal } from '@/hooks/modals/usePurchaseCheckoutModal'
 import { usePurchaseBlockedModal } from '@/hooks/modals/usePurchaseBlockedModal'
 import { useAuthorizingModal } from '@/hooks/modals/useAuthorizingModal'
@@ -42,12 +41,14 @@ import ETHIcon from '@/components/ETHIcon'
 import { usePurchaseWaitingConfirmationModal } from '@/hooks/modals/usePurchaseWaitingConfirmationModal'
 import { getNftFavoriteCount } from '@/apis/nft'
 import { useMediaQuery } from 'react-responsive'
-import { NftDetail } from '@/types/NFTDetail'
-import { closeExchange } from '@/BankseaWeb3/services/solana/exchange'
-import { getExchangeInfo } from '@/apis/exchange/solana'
-import { useNftDetailQuery } from '@/hooks/queries/useNftDetailQuery'
+import { NFTDetail } from '@/types/NFTDetail'
+import { useNFTDetailQuery } from '@/hooks/queries/useNFTDetailQuery'
 import ThemeTable from '@/styles/ThemeTable'
 import { useSolanaWeb3 } from '@/contexts/solana-web3'
+import { useMatchBreakpoints } from '@pancakeswap/uikit'
+import { useRefreshController } from '@/contexts'
+import useSoldOutNFT from '@/hooks/contract/service/useSoldOutNFT'
+import usePurchaseNFT from '@/hooks/contract/service/usePurchaseNFT'
 
 const Properties: React.FC = () => {
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
@@ -126,7 +127,7 @@ const Properties: React.FC = () => {
   )
 }
 
-const TradingHistories: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
+const TradingHistories: React.FC<{ nftDetail?: NFTDetail }> = ({ nftDetail }) => {
 
   const isMobile = useMediaQuery({ query: '(max-width:1000px' })
 
@@ -197,7 +198,7 @@ const TradingHistories: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) =>
   )
 }
 
-const MobileNFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
+const MobileNFTBaseInfo: React.FC<{ nftDetail?: NFTDetail }> = ({ nftDetail }) => {
   const uri = useLocationQuery('uri')
   const [likeNum, setLikeNum] = useState<any>()
 
@@ -262,7 +263,7 @@ const MobileNFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) =
   )
 }
 
-const NFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
+const NFTBaseInfo: React.FC<{ nftDetail?: NFTDetail }> = ({ nftDetail }) => {
   const uri = useLocationQuery('uri')
 
   const [likeNum, setLikeNum] = useState<any>()
@@ -373,7 +374,7 @@ const NFTBaseInfo: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
   )
 }
 
-const NFTMetadata: React.FC<{ nftDetail?: NftDetail }> = ({ nftDetail }) => {
+const NFTMetadata: React.FC<{ nftDetail?: NFTDetail }> = ({ nftDetail }) => {
   const type = useLocationQuery('type')
   const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
 
@@ -593,18 +594,20 @@ const MoreArtworks: React.FC = () => {
 const CollectibleDetailPage: React.FC = () => {
   moment.locale('en')
 
-  const isMobile = useMediaQuery({ query: '(max-width: 600px)' })
+  const { forceRefresh } = useRefreshController()
+  const { isMobile } = useMatchBreakpoints()
+  const { connected, account, select } = useSolanaWeb3()
+  const [uri, contractAddress] = useLocationQueries([
+    { key: 'uri', defaultValue: '' },
+    { key: 'contractAddress' }
+  ])
 
-  const { connected, account } = useSolanaWeb3()
-
-  const uri = useLocationQuery('uri') ?? ''
-  const contractAddress = useLocationQuery('contractAddress')
-
-  const { data: nftDetail } = useNftDetailQuery({ uri, contractAddress })
+  const { data: nftDetail } = useNFTDetailQuery({ uri, contractAddress })
+  const { soldOut } = useSoldOutNFT()
+  const { purchaseByFixedPrice } = usePurchaseNFT()
 
   const [reasonOfUnableToBuy, setReasonOfUnableToBuy] = useState<string>()
 
-  const { select } = useSolanaWeb3()
   const { purchaseBlockedModal, openPurchaseBlockedModal } = usePurchaseBlockedModal()
   const { authorizingModal, openAuthorizingModal, closeAuthorizingModal } = useAuthorizingModal()
   const {
@@ -615,29 +618,31 @@ const CollectibleDetailPage: React.FC = () => {
   const { purchaseTransactionSentModal, openPurchaseTransactionSentModal } = usePurchaseTransactionSentModal()
   const { sellingModal, openSellingModal } = useSellingModal({
     nftDetail,
-    onSellingConfirmed() {
-      window.location.reload()
-    },
+    onSellingConfirmed: forceRefresh,
     onStart: openAuthorizingModal
   })
 
   const checkoutPassed = () => {
     openAuthorizingModal()
 
-    bankseaWeb3.services.purchaseByFixedPrice({
+    purchaseByFixedPrice({
       account: account!.toBase58(),
       nftDetail,
       onAuthorized: () => {
         closeAuthorizingModal()
         openPurchaseWaitingConfirmationModal()
       },
-      onSuccess: () => {
+    })
+      .then(() => {
         openPurchaseTransactionSentModal()
         // eslint-disable-next-line @typescript-eslint/no-use-before-define
         closePurchaseCheckoutModal()
         closePurchaseWaitingConfirmationModal()
-      }
-    })
+      })
+      .catch(e => {
+        console.error(e)
+        message.error(`Failed to purchase by fixed price: ${e.toString}`)
+      })
   }
 
   const checkoutFailed = () => {
@@ -648,7 +653,7 @@ const CollectibleDetailPage: React.FC = () => {
     purchaseCheckoutModal,
     openPurchaseCheckoutModal,
     closePurchaseCheckoutModal
-  } = usePurchaseCheckoutModal(nftDetail, checkoutPassed, checkoutFailed)
+  } = usePurchaseCheckoutModal(checkoutPassed, checkoutFailed, nftDetail)
 
   useEffect(() => {
     if (nftDetail?.nftPubKey) {
@@ -657,17 +662,13 @@ const CollectibleDetailPage: React.FC = () => {
 
   }, [nftDetail])
 
-  const allowToSell = () => {
+  const allowToSell = useMemo(() => {
     if (nftDetail?.typeChain === 'Solana') {
-      // TODO: hack
-      // return true
       return nftDetail?.nftPubKey?.length > 0 && account?.toBase58() === nftDetail?.addressOwner
     }
 
-    if (nftDetail?.typeChain === 'Ethereum') {
-      return nftDetail?.tokenId > 0 && account?.toBase58() === nftDetail?.addressOwner
-    }
-  }
+    return false
+  }, [nftDetail, account])
 
   useEffect(() => {
     if (!(nftDetail?.onSale && nftDetail.price)) {
@@ -688,18 +689,16 @@ const CollectibleDetailPage: React.FC = () => {
     setReasonOfUnableToBuy(undefined)
   }, [account, nftDetail])
 
-  const allowToSoldOut = () => {
-    return nftDetail?.onSale && allowToSell()
-  }
+  const allowToSoldOut = useMemo(() => {
+    return nftDetail?.onSale && allowToSell
+  }, [nftDetail, allowToSell])
 
   const onClickBuyButton = () => {
     openPurchaseCheckoutModal()
   }
 
   const handleSoldOut = async () => {
-    const exchangePubKey = (await (getExchangeInfo(nftDetail!.nftPubKey))).data.data.exchangePubKey
-
-    closeExchange(nftDetail!.nftPubKey, exchangePubKey)
+    soldOut(nftDetail).then(forceRefresh)
   }
 
   const coverImageUrl = useCallback(() => {
@@ -727,7 +726,7 @@ const CollectibleDetailPage: React.FC = () => {
               </Button>
             }
             {
-              allowToSell() &&
+              allowToSell &&
               <Operating>
                 <Button className="sell" onClick={openSellingModal}>
                   Sell
@@ -744,14 +743,14 @@ const CollectibleDetailPage: React.FC = () => {
           <div>
             <Operating>
               {
-                allowToSoldOut() && (
+                allowToSoldOut && (
                   <Button onClick={handleSoldOut}>
                     Sold out
                   </Button>
                 )
               }
               {
-                allowToSell() && (
+                allowToSell && (
                   <Button onClick={openSellingModal}>
                     Sell
                   </Button>

@@ -28,7 +28,7 @@ import { ThemeSearchInput } from '@/styles/ThemeSearchInput'
 import {
   convertCollectionValuationDetailToCollectionExternalLinks,
   convertCollectionValuationDetailToCollectionValuationStatisticItems
-} from '@/converters/insight'
+} from './converters'
 import { SortOrder } from 'antd/es/table/interface'
 import { Flex } from '@pancakeswap/uikit'
 

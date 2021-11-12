@@ -2,7 +2,7 @@ import React from 'react'
 import styled from 'styled-components'
 import FeatureAddedWhitelistCollections from './components/FeatureAddedWhitelistCollections'
 import AllWhitelistCollections from './components/AllWhitelistCollections'
-import { useValuationOverviewData } from '@/hooks/data/useValuationOverviewData'
+import { useInsightOverviewData } from '@/hooks/queries/insight/overview/useInsightOverviewData'
 import {
   CollectionsHearTrendChart,
   CollectionsHeatTrendChartProps
@@ -194,7 +194,7 @@ const InsightPage: React.FC = () => {
     collectionsHeatTrendData,
     currencyMarketValue,
     nftMarketTotalValuation
-  } = useValuationOverviewData()
+  } = useInsightOverviewData()
 
   return (
     <ValuationPageContainer>

@@ -1,10 +1,11 @@
 import React, { useCallback, useState } from 'react'
-import { bankseaWeb3 } from '@/BankseaWeb3'
 import { Button, Checkbox, Divider, message, Modal } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons'
 import styled from 'styled-components'
 import { useModal } from '@/hooks/useModal'
 import ETHIcon from '@/components/ETHIcon'
+import useCheckBalance from '@/hooks/contract/service/useCheckBalance'
+import { NFTDetail } from '@/types/NFTDetail'
 
 const PurchaseCheckoutModal = styled(Modal)`
 
@@ -19,9 +20,11 @@ const PurchaseCheckoutModal = styled(Modal)`
   }
 
   .ant-modal-body,
-  .ant-modal-header{
-    background-color: #111C3A; !important;
+  .ant-modal-header {
+    background-color: #111C3A;
+  !important;
   }
+
   .ant-modal-header {
     border-top-left-radius: 1rem;
     border-top-right-radius: 1rem;
@@ -40,6 +43,7 @@ const PurchaseCheckoutModal = styled(Modal)`
     display: flex;
     justify-content: space-between;
     color: #97BCF8;
+
     p {
       line-height: 25px;
       font-size: 1.8rem;
@@ -216,7 +220,7 @@ const Announcement = styled.div`
 
   .ant-checkbox + span {
     color: #97BCF8;
-    font-size: 1.2  rem;
+    font-size: 1.2rem;
   }
 `
 
@@ -229,9 +233,11 @@ const Line = styled.div`
   background: linear-gradient(to right, #00FFFF, #7702FF);
 `
 
-export const usePurchaseCheckoutModal = (nftDetail: any, checkoutPassed: () => void, checkoutFailed: () => void) => {
+export const usePurchaseCheckoutModal = (checkoutPassed: () => void, checkoutFailed: () => void, nftDetail?: NFTDetail) => {
   const [allChecked, setAllChecked] = useState(false)
   const [checking, setChecking] = useState(false)
+
+  const checkBalance = useCheckBalance()
 
   const checkboxOptions = [
     'By checking this box. I acknowledge that this item has not been reviewed or approved by Banksea',
@@ -243,7 +249,7 @@ export const usePurchaseCheckoutModal = (nftDetail: any, checkoutPassed: () => v
   const handleCheckout = () => {
     setChecking(true)
 
-    bankseaWeb3.services.checkBalance(nftDetail)
+    checkBalance(nftDetail?.price)
       .then(() => {
         setChecking(false)
         checkoutPassed()
@@ -255,59 +261,62 @@ export const usePurchaseCheckoutModal = (nftDetail: any, checkoutPassed: () => v
       })
   }
 
-  const buildModalByNftDetail = useCallback((close: () => void, visible: boolean) => (
-    <PurchaseCheckoutModal
-      title="Checkout"
-      visible={visible}
-      onCancel={close}
-      footer={null}
-    >
-      <Line />
-      <div className="checkout-list">
-        <p>Item</p>
-        <p>Subtotal</p>
-      </div>
-      <Line style={{ marginTop: '16.5rem' }} />
-      <div className="checkout-detail">
-        <div className="ntf-info">
-          <img className="nft-image" src={nftDetail?.image} alt="" />
-          <div className="nft-detail">
-            <div className="artist-name">{nftDetail?.name}</div>
-            <div className="nft-name">{nftDetail?.description}</div>
+  const buildModalByNftDetail = useCallback(
+    (close: () => void, visible: boolean) => (
+      <PurchaseCheckoutModal
+        title="Checkout"
+        visible={visible}
+        onCancel={close}
+        footer={null}
+      >
+        <Line />
+        <div className="checkout-list">
+          <p>Item</p>
+          <p>Subtotal</p>
+        </div>
+        <Line style={{ marginTop: '16.5rem' }} />
+        <div className="checkout-detail">
+          <div className="ntf-info">
+            <img className="nft-image" src={nftDetail?.image} alt="" />
+            <div className="nft-detail">
+              <div className="artist-name">{nftDetail?.name}</div>
+              <div className="nft-name">{nftDetail?.description}</div>
+            </div>
+          </div>
+          <div className="nft-value">
+            <div className="nft-price">
+              <ETHIcon />
+              {nftDetail?.price ? nftDetail?.price : '---'}
+            </div>
+            <div className="nft-price-dollar">( $ - )</div>
           </div>
         </div>
-        <div className="nft-value">
-          <div className="nft-price">
-            <ETHIcon />
-            {nftDetail?.price ? nftDetail?.price : '---'}
+        <Line style={{ marginTop: '24.5rem' }} />
+        <div className="total-price">
+          <div className="total">Total</div>
+          <div className="nft-value">
+            <div className="nft-price">
+              <ETHIcon />
+              {nftDetail?.price ? nftDetail?.price : '- - -'}
+            </div>
+            <div className="nft-price-dollar">( $ - )</div>
           </div>
-          <div className="nft-price-dollar">( $ - )</div>
         </div>
-      </div>
-      <Line style={{ marginTop: '24.5rem' }} />
-      <div className="total-price">
-        <div className="total">Total</div>
-        <div className="nft-value">
-          <div className="nft-price">
-            <ETHIcon />
-            {nftDetail?.price ? nftDetail?.price : '- - -'}
-          </div>
-          <div className="nft-price-dollar">( $ - )</div>
+        <Divider />
+        <Announcement>
+          <Checkbox.Group options={checkboxOptions} onChange={onChange} />
+        </Announcement>
+        <div className="footer">
+          <Button disabled={!allChecked || checking} onClick={handleCheckout}>
+            {
+              checking ? (<><LoadingOutlined />&nbsp;Checking...</>) : 'Checkout'
+            }
+          </Button>
         </div>
-      </div>
-      <Divider />
-      <Announcement>
-        <Checkbox.Group options={checkboxOptions} onChange={onChange} />
-      </Announcement>
-      <div className="footer">
-        <Button disabled={!allChecked || checking} onClick={handleCheckout}>
-          {
-            checking ? (<><LoadingOutlined />&nbsp;Checking...</>) : 'Checkout'
-          }
-        </Button>
-      </div>
-    </PurchaseCheckoutModal>
-  ), [nftDetail, allChecked, onChange])
+      </PurchaseCheckoutModal>
+    ),
+    [nftDetail, allChecked, onChange]
+  )
 
   const { modal, open, close } = useModal((_open, close, visible) => buildModalByNftDetail(close, visible))
 

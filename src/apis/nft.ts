@@ -1,5 +1,5 @@
 import bankseaRequest, { BankseaApiPagingData, BankseaApiResponse } from '@/utils/bankseaRequest'
-import { NftDetail, NftListItem } from '@/types/NFTDetail'
+import { NFTDetail, NftListItem } from '@/types/NFTDetail'
 
 export type ChainType = 'Ethereum' | 'Solana' | ''
 
@@ -54,7 +54,7 @@ export function bankseaNftList(data: BankseaNftListQueryParams) {
 }
 
 export function bankseaNftDetail(data: NftDetailQueryRequest) {
-  return bankseaRequest.post<BankseaApiResponse<NftDetail>>('/query/detail', data)
+  return bankseaRequest.post<BankseaApiResponse<NFTDetail>>('/query/detail', data)
 }
 
 export function personalNftList(data: BankseaPersonalNftListQueryParams) {

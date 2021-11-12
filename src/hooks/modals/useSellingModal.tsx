@@ -3,9 +3,7 @@ import { Button, Checkbox, Form, Input, Modal, Select } from 'antd'
 import React, { useState } from 'react'
 import styled from 'styled-components'
 import clsx from 'clsx'
-import { bankseaWeb3 } from '@/BankseaWeb3'
-import { useSolanaWeb3 } from '@/contexts/solana-web3'
-
+import useSellNFT from '@/hooks/contract/service/useSellNFT'
 
 type MessageHintProps = {
   message: string,
@@ -314,7 +312,7 @@ const MessageHint: React.FC<MessageHintProps> = ({ message, type }) => {
   }[type] : ''
 
   return (
-    <p style={{ fontSize: '1.2rem', color }}>
+    <p style={{ fontSize: '14px', fontWeight: 'bold', color }}>
       {message}
     </p>
   )
@@ -327,11 +325,13 @@ type SellingModalProps = {
 }
 
 export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: SellingModalProps) => {
-  const { account } = useSolanaWeb3()
-
   const [checked, setChecked] = useState(false)
-
   const [current, setCurrent] = useState(0)
+  const [hintMessage, setHintMessage] = useState<MessageHintProps>({
+    message: '', type: 'hint'
+  })
+
+  const { listByFixedPrice } = useSellNFT()
 
   const formInitialValues = {
     price: ''
@@ -339,13 +339,9 @@ export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: Sell
 
   const [form] = Form.useForm<typeof formInitialValues>()
 
-  const [hintMessage, setHintMessage] = useState<MessageHintProps>({
-    message: '', type: 'hint'
-  })
-
   const AVAILABLE_SELLING_METHODS = ['Fixed price', 'Auction', 'Splitting', 'Mortgage']
 
-  const checkCheckbox = () => new Promise<void>((resolve, reject) => {
+  const validateCheckbox = () => new Promise<void>((resolve, reject) => {
     if (!checked) {
       setHintMessage({
         message: 'Please check the checkbox first!',
@@ -353,19 +349,20 @@ export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: Sell
       })
       reject()
     }
+
     resolve()
   })
 
   const handleListing = async (values: typeof formInitialValues) => {
     onStart()
 
-    await bankseaWeb3.services.listByFixedPrice(nftDetail, values.price, account?.toBase58())
+    await listByFixedPrice(nftDetail, values.price)
 
     onSellingConfirmed()
   }
 
   const onListingButtonClicked = async () => {
-    checkCheckbox()
+    validateCheckbox()
       .then(() => form.validateFields())
       .then(handleListing)
   }
@@ -399,16 +396,13 @@ export const useSellingModal = ({ nftDetail, onSellingConfirmed, onStart }: Sell
         <Form form={form} initialValues={formInitialValues}>
           <div className="fixedPrice">
             <Input.Group compact>
-              <Select defaultValue="ETH">
-                <Select.Option value="ETH">
-                  ETH
-                </Select.Option>
-                <Select.Option value="ERC20">
-                  ERC20
+              <Select defaultValue="SOL">
+                <Select.Option value="SOL">
+                  SOL
                 </Select.Option>
               </Select>
               <Form.Item name="price">
-                <Input style={{ width: '50%' }} defaultValue="" />
+                <Input style={{ width: '50%' }} />
               </Form.Item>
             </Input.Group>
           </div>

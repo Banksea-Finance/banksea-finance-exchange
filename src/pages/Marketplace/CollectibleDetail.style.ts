@@ -161,8 +161,8 @@ export const PropertiesArea = styled.div`
 export const CornerFlag = styled.div`
   position: absolute;
   color: white;
-  bottom: 20vw;
-  right: 16vw;
+  left: -0.3vw;
+  top: -0.6vw;
   font-weight: 550;
   text-align: center;
   width: 4.5vw;

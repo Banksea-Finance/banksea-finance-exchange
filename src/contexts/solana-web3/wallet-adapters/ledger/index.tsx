@@ -21,12 +21,12 @@ export class LedgerWalletAdapter extends EventEmitter implements WalletAdapter {
   }
 
   get publicKey() {
-    return this._publicKey
+    return this._publicKey ?? PublicKey.default
   }
 
   async signTransaction(transaction: Transaction) {
     if (!this._transport || !this._publicKey) {
-      throw new Error('Not connected to Ledger')
+      throw new Error('Not connected to Ledger yet')
     }
 
     // @TODO: account selection (derivation path changes with account)
@@ -35,6 +35,12 @@ export class LedgerWalletAdapter extends EventEmitter implements WalletAdapter {
     transaction.addSignature(this._publicKey, signature)
 
     return transaction
+  }
+
+  async signAllTransactions(txs: Transaction[]): Promise<Transaction[]> {
+    return await Promise.all(
+      txs.map(tx => this.signTransaction(tx))
+    )
   }
 
   async connect() {

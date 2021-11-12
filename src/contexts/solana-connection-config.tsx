@@ -18,9 +18,9 @@ interface ConnectionConfig {
   sendConnection: Connection;
   endpointUrl: string;
   slippage: number;
-  setSlippage: (_val: number) => void;
+  setSlippage: (val: number) => void;
   network: Network;
-  setEndpoint: (_val: string) => void;
+  setEndpoint: (val: string) => void;
 }
 
 export type Endpoint = {
@@ -29,8 +29,7 @@ export type Endpoint = {
   chainID: ChainID,
 }
 
-// eslint-disable-next-line no-unused-vars
-export const ENDPOINTS: { [key in Network]: Endpoint } = {
+export const ENDPOINTS: Record<Network, Endpoint> = {
   'mainnet-beta': {
     name: 'mainnet-beta' as Network,
     endpointUrl: 'https://solana-api.projectserum.com/',
@@ -53,6 +52,7 @@ export const ENDPOINTS: { [key in Network]: Endpoint } = {
   }
 }
 
+// fixme: should configured in env
 const DEFAULT_NETWORK: Network = 'devnet'
 
 const DEFAULT_ENDPOINT = ENDPOINTS[DEFAULT_NETWORK]
@@ -146,26 +146,8 @@ export function SolanaConnectionConfigProvider({ children = undefined as any }) 
   )
 }
 
-export function useSolanaConnection() {
-  return useContext(SolanaConnectionConfigContext).connection as Connection
-}
-
-export function useSendConnection() {
-  return useContext(SolanaConnectionConfigContext)?.sendConnection
-}
-
 export function useConnectionConfig() {
-  const context = useContext(SolanaConnectionConfigContext)
-  return {
-    endpoint: context.endpointUrl,
-    setEndpoint: context.setEndpoint,
-    env: context.network
-  }
-}
-
-export function useSlippageConfig() {
-  const { slippage, setSlippage } = useContext(SolanaConnectionConfigContext)
-  return { slippage, setSlippage }
+  return useContext(SolanaConnectionConfigContext)
 }
 
 const getErrorForTransaction = async (connection: Connection, txid: string) => {

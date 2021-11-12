@@ -1,4 +1,4 @@
-export interface NftDetail {
+export interface NFTDetail {
   id: string;
   tokenId: number;
   valueUri: string;
